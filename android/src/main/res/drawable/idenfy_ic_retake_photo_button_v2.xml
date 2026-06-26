@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Kara: secondary/retake button = transparent pill with a gold border (app
-     outline style). Overrides the iDenfy AAR vector (was white fill, 4dp). -->
-<shape xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="rectangle">
-    <solid android:color="#00000000" />
-    <stroke android:width="2dp" android:color="@color/idenfyMainColorV2" />
-    <corners android:radius="100dp" />
-</shape>

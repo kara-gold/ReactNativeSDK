@@ -1,9 +1,9 @@
 import {
-  ConfigPlugin,
   withProjectBuildGradle,
   withAppBuildGradle,
   withGradleProperties,
 } from '@expo/config-plugins';
+import type { ConfigPlugin } from '@expo/config-plugins';
 import type { IdenfyPluginProps } from './index';
 
 const JITPACK_URL = 'https://jitpack.io';

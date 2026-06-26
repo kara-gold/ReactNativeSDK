@@ -1,5 +1,5 @@
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
-import React, { Component } from 'react';
+import { Component } from 'react';
 import LinearGradient from 'react-native-linear-gradient';
 import { Buffer } from 'buffer';
 import { apiKey, apiSecret, BASE_URL, clientId } from './Consts';
@@ -19,7 +19,7 @@ import {
 import RequestUpdateScreen from './RequestUpdateScreen';
 import FaceAuthScreen from './FaceAuthScreen';
 
-global.Buffer = Buffer; // very important
+(globalThis as typeof globalThis & { Buffer: typeof Buffer }).Buffer = Buffer; // very important
 export default class App extends Component {
   state = {
     currentScreen: 'main' as 'main' | 'requestUpdate' | 'faceAuth',

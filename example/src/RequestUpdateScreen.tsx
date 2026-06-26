@@ -6,7 +6,7 @@ import {
   TextInput,
   Switch,
 } from 'react-native';
-import React, { Component } from 'react';
+import { Component } from 'react';
 import LinearGradient from 'react-native-linear-gradient';
 import { Buffer } from 'buffer';
 import { apiKey, apiSecret, BASE_URL } from './Consts';

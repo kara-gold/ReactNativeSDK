@@ -2,76 +2,44 @@
 <!--
   Kara dark + gold theme for the iDenfy native SDK (Android).
 
-  The iDenfy dashboard theme does NOT apply to the native SDK; the SDK reads its
-  named color resources. This module depends on the iDenfy AAR (sdk-api 9.1.0),
-  so redefining a color name here overrides the AAR's value (library > its
-  dependency). Overriding a name that no longer exists is a no-op, never a build
-  failure — so this list is deliberately exhaustive over the flow's screens.
-
-  Master colors cascade everywhere; per-screen overrides fix cards + on-white
-  button text. Camera screens are intentionally left untouched (their white icons
-  must stay white). Palette mirrors apps/native/global.css (.dark), bg #090710.
+  Keep this intentionally minimal: only palette resources and button text
+  colors. Do not override iDenfy drawables/layout primitives here.
 -->
 <resources>
-	<!-- ===== Master palette (cascades) ===== -->
 	<color name="idenfyBackgroundColorV2">#090710</color>
 	<color name="idenfyMainColorV2">#E1BE6B</color>
 	<color name="idenfyMainDarkerColorV2">#E1BE6B</color>
 	<color name="idenfyGradientAccentV2">#E1BE6B</color>
 	<color name="idenfyMainColor50percentV2">#80E1BE6B</color>
 
-	<!-- Text (opaque white) + alpha variants -->
 	<color name="idenfySecondColorV2">#FAFAFA</color>
 	<color name="idenfySecondColor6percentV2">#0FFAFAFA</color>
 	<color name="idenfySecondColor20percentV2">#33FAFAFA</color>
 	<color name="idenfySecondColor50percentV2">#80FAFAFA</color>
 	<color name="idenfySecondColor80percentV2">#CCFAFAFA</color>
 
-	<!-- Splash titles/description/spinner default to idenfyBlackV2 -->
-	<color name="idenfyBlackV2">#FAFAFA</color>
-
-	<!-- Surfaces (cards). idenfyLightGrayColor = privacy-policy & accepted-docs
-	     cards (were light → white text invisible). Make them dark. -->
 	<color name="idenfyLightGrayColor">#1C1C1E</color>
 	<color name="idenfyInactiveColorV2">#1C1C1E</color>
 	<color name="idenfyPhotoResultDetailsCardBackgroundColorV2">#1C1C1E</color>
 	<color name="idenfyLivenessBackgroundColor">#090710</color>
 
-	<!-- Status -->
 	<color name="idenfyStepSuccessColorV2">#16A34A</color>
 	<color name="idenfyStepErrorColorV2">#EF4444</color>
 	<color name="idenfyRedColorV2">#EF4444</color>
 	<color name="idenfyErrorRedColorV2">#EF4444</color>
 
-	<!-- Primary buttons = white (also overridden via the gradient-button drawable).
-	     Belt-and-suspenders in case a screen reads the gradient colors directly. -->
 	<color name="idenfyGradientButtonColorStart">#FAFAFA</color>
 	<color name="idenfyGradientButtonColorEnd">#FAFAFA</color>
 
-	<!-- ===== App bar (default = white) — camera app bars left untouched ===== -->
 	<color name="idenfyDefaultAppBarBackgroundColor">#090710</color>
 	<color name="idenfyNoBackButtonAppBarBackgroundColor">#090710</color>
 	<color name="idenfyPhotoResultAppBarBackgroundColor">#090710</color>
 
-	<!-- ===== Selection cards + highlights (flow screens) ===== -->
-	<color name="idenfyCountryAndDocumentSelectionViewItemSelectionBackgroundColor">#1C1C1E</color>
-	<color name="idenfyCountryAndDocumentSelectionViewItemSelectionHighlightedBackgroundColor">#E1BE6B</color>
 	<color name="idenfyCountryAndDocumentSelectionViewItemSelectionHighlightedTextColor">#090710</color>
-	<color name="idenfyCountryAndDocumentSelectionViewItemSelectionHighlightedBorderColor">#E1BE6B</color>
-	<color name="idenfyDocumentSelectionViewRecyclerViewItemBackgroundColor">#1C1C1E</color>
-	<color name="idenfyDocumentSelectionViewRecyclerViewItemHighlightedBackgroundColor">#E1BE6B</color>
 	<color name="idenfyDocumentSelectionViewRecyclerViewItemHighlightedTextColor">#090710</color>
 
-	<!-- Privacy-policy card (explicit, in addition to idenfyLightGrayColor) -->
 	<color name="idenfyPrivacyPolicyCardViewBackgroundColor">#1C1C1E</color>
 
-	<!-- Language list dark (defensive; globe is hidden via drawable) -->
-	<color name="idenfyLanguageSelectionViewLanguageRecyclerViewBackgroundColor">#090710</color>
-	<color name="idenfyLanguageSelectionViewLanguageRecyclerViewItemBackgroundColor">#1C1C1E</color>
-	<color name="idenfyLanguageSelectionViewLanguageRecyclerViewItemHighlightedBackgroundColor">#E1BE6B</color>
-	<color name="idenfyLanguageSelectionViewLanguageRecyclerViewItemHighlightedTextColor">#090710</color>
-
-	<!-- ===== Primary button text → dark (white buttons need dark text) ===== -->
 	<color name="idenfyPrivacyPolicyContinueButtonTextColor">#090710</color>
 	<color name="idenfyCountryAndDocumentSelectionViewContinueButtonEnabledTextColor">#090710</color>
 	<color name="idenfyDocumentSelectionViewContinueButtonEnabledTextColor">#090710</color>

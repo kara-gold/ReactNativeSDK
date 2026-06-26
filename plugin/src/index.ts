@@ -1,4 +1,5 @@
-import { ConfigPlugin, createRunOncePlugin } from '@expo/config-plugins';
+import { createRunOncePlugin } from '@expo/config-plugins';
+import type { ConfigPlugin } from '@expo/config-plugins';
 import { withIdenfyIos } from './withIdenfyIos';
 import { withIdenfyAndroid } from './withIdenfyAndroid';
 

@@ -23,6 +23,7 @@ class GetSdkConfig {
       
       if let uiSettingsMap = map["idenfyUISettings"] as? NSDictionary {
         var idenfyUISettingsV2 = IdenfyUIBuilderV2()
+        idenfyUISettingsV2 = idenfyUISettingsV2.withLivenessUISettings(KaraIdenfyTheme.makeLivenessSettings())
         
         if let isAdditionalSupportEnabled = uiSettingsMap["isAdditionalSupportEnabled"] as? Bool {
           idenfyUISettingsV2 = idenfyUISettingsV2.withAdditionalSupportView(isAdditionalSupportEnabled)
