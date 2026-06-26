@@ -37,6 +37,10 @@ enum KaraIdenfyTheme {
 		applyButtonText()
 	}
 
+	static func polishVisibleViews(in root: UIView) {
+		roundCardsAndControls(in: root)
+	}
+
 	// Master palette — cascades to all screens. High confidence: documented names.
 	@MainActor
 	private static func applyMasterColors() {
@@ -65,11 +69,12 @@ enum KaraIdenfyTheme {
 	private static func applyToolbar() {
 		IdenfyToolbarUISettingsV2.idenfyDefaultToolbarBackgroundColor = background
 		IdenfyToolbarUISettingsV2.idenfyDefaultToolbarBackIconTintColor = gold
-		// No logo: the injected asset is transparent (see config plugin). Tint stays
-		// harmless. Hide the language globe by tinting it to the toolbar background —
-		// the SDK exposes no visibility flag for it (only the all-or-nothing
+		// The config plugin overrides iDenfy's logo asset with Kara's wordmark.
+		// Keep the logo visible in the otherwise textless SDK toolbar.
+		IdenfyToolbarUISettingsV2.idenfyDefaultToolbarLogoIconTintColor = gold
+		// Hide the language globe by tinting it to the toolbar background — the
+		// SDK exposes no visibility flag for it (only the all-or-nothing
 		// idenfyToolbarHidden, which would also remove the close button).
-		IdenfyToolbarUISettingsV2.idenfyDefaultToolbarLogoIconTintColor = background
 		IdenfyToolbarUISettingsV2.idenfyLanguageSelectionToolbarLanguageSelectionIconTintColor = background
 		IdenfyToolbarUISettingsV2.idenfyLanguageSelectionToolbarCloseIconTintColor = gold
 	}
@@ -159,6 +164,33 @@ enum KaraIdenfyTheme {
 		IdenfyInstructionAlertUISettigsV2.idenfyInstructionAlertContinueButtonTextColor = onButton
 	}
 
+	private static func roundCardsAndControls(in view: UIView) {
+		if shouldRound(view) {
+			view.layer.cornerRadius = cardRadius(for: view)
+			view.layer.cornerCurve = .continuous
+			view.clipsToBounds = true
+		}
+
+		for subview in view.subviews {
+			roundCardsAndControls(in: subview)
+		}
+	}
+
+	private static func shouldRound(_ view: UIView) -> Bool {
+		if view is UIButton { return true }
+		if view.layer.borderWidth > 0, view.bounds.height >= 36 { return true }
+		if isSameColor(view.backgroundColor, card), view.bounds.height >= 36 {
+			return true
+		}
+		return false
+	}
+
+	private static func cardRadius(for view: UIView) -> CGFloat {
+		if view is UIButton { return 28 }
+		if view.bounds.height >= 64 { return 8 }
+		return 6
+	}
+
 	// Free function (not a UIColor extension) so it can never collide with an
 	// SDK-provided UIColor(hexString:) initializer. Accepts "#RRGGBB".
 	private static func karaColor(_ hex: String) -> UIColor {
@@ -170,5 +202,28 @@ enum KaraIdenfyTheme {
 		let g = CGFloat((rgb & 0x00FF00) >> 8) / 255
 		let b = CGFloat(rgb & 0x0000FF) / 255
 		return UIColor(red: r, green: g, blue: b, alpha: 1)
+	}
+
+	private static func isSameColor(_ lhs: UIColor?, _ rhs: UIColor) -> Bool {
+		guard let lhs else { return false }
+		var leftRed: CGFloat = 0
+		var leftGreen: CGFloat = 0
+		var leftBlue: CGFloat = 0
+		var leftAlpha: CGFloat = 0
+		var rightRed: CGFloat = 0
+		var rightGreen: CGFloat = 0
+		var rightBlue: CGFloat = 0
+		var rightAlpha: CGFloat = 0
+		guard
+			lhs.getRed(&leftRed, green: &leftGreen, blue: &leftBlue, alpha: &leftAlpha),
+			rhs.getRed(&rightRed, green: &rightGreen, blue: &rightBlue, alpha: &rightAlpha)
+		else {
+			return false
+		}
+		let tolerance: CGFloat = 0.01
+		return abs(leftRed - rightRed) < tolerance &&
+			abs(leftGreen - rightGreen) < tolerance &&
+			abs(leftBlue - rightBlue) < tolerance &&
+			abs(leftAlpha - rightAlpha) < tolerance
 	}
 }

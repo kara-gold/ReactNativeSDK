@@ -1,6 +1,7 @@
 import Foundation
 import iDenfySDK
 import idenfycore
+import UIKit
 @objc(IdenfyReactNative)
 class IdenfyReactNative: NSObject {
     
@@ -37,6 +38,7 @@ class IdenfyReactNative: NSObject {
             idenfyVC.modalPresentationStyle = .fullScreen
             
             UIApplication.shared.windows.first?.rootViewController?.present(idenfyVC, animated: true)
+            self.polishKaraTheme(in: idenfyVC)
             
             handleSdkCallbacks(idenfyController: idenfyController, resolver: resolve)
             
@@ -121,6 +123,7 @@ class IdenfyReactNative: NSObject {
             idenfyVC.modalPresentationStyle = .fullScreen
 
             UIApplication.shared.windows.first?.rootViewController?.present(idenfyVC, animated: true)
+            self.polishKaraTheme(in: idenfyVC)
 
             handleRequestUpdateSdkCallbacks(idenfyController: idenfyController, resolver: resolve)
 
@@ -140,5 +143,14 @@ class IdenfyReactNative: NSObject {
             let response = NativeResponseToReactNativeResponseMapper.mapRequestUpdate(o: informationUpdateStatus)
             resolve(response)
         })
+    }
+
+    @MainActor private func polishKaraTheme(in viewController: UIViewController) {
+        let delays: [Double] = [0, 0.15, 0.35, 0.75]
+        for delay in delays {
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                KaraIdenfyTheme.polishVisibleViews(in: viewController.view)
+            }
+        }
     }
 }
