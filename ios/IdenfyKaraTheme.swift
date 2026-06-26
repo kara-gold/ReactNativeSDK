@@ -1,7 +1,11 @@
 import Foundation
 import UIKit
 import iDenfySDK
-import idenfycore
+// The customization classes (IdenfyCommonColors, *UISettingsV2) live in the
+// idenfyviews framework — NOT idenfycore. Confirmed against iDenfySDK-Static
+// 9.1.0 (vends idenfycore.xcframework + idenfyviews.xcframework) and the
+// official ui-customization example (imports iDenfySDK + idenfyviews).
+import idenfyviews
 
 //  Kara dark + gold theme for the iDenfy native SDK.
 //
