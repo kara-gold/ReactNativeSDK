@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Kara: primary button = solid white pill (app dark-mode primary). Overrides
+     the iDenfy AAR drawable (was a blue→purple gradient, 4dp corners). -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@color/idenfyGradientButtonColorStart" />
+    <corners android:radius="100dp" />
+</shape>

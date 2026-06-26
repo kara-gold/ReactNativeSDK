@@ -11,96 +11,152 @@ import idenfyviews
 //
 //  The iDenfy dashboard theme does NOT apply to the native SDK — the SDK reads
 //  its own static `IdenfyCommonColors` / `*UISettingsV2` properties in code.
-//  Setting the master `IdenfyCommonColors` colors cascades to every screen
-//  (each per-screen class defaults to these); the per-screen block below only
-//  fixes the two cases the masters can't: card surfaces and on-gold button text
-//  (both default to `idenfyWhite`, which is also used for camera icons, so it
-//  can't be repurposed globally).
+//  Setting the master `IdenfyCommonColors` colors cascades to every screen;
+//  the per-screen block fixes what the masters can't (cards, button text).
 //
 //  Source of every identifier: idenfy/iDenfyResources (sdk/ios/uicustomization),
 //  matched to the SDK version pinned in the podspec (iDenfySDK-Static 9.1.0).
 
 enum KaraIdenfyTheme {
-	// Palette — mirrors apps/native/global.css (.dark) with the requested
-	// background override. Gold is the single brand accent (the app flattens
-	// gold/gold-light/gold-dark to one value).
+	// Palette — mirrors apps/native/global.css (.dark), background per request.
 	private static let background = karaColor("#090710") // app dark bg override
-	private static let gold = karaColor("#E1BE6B") // --gold
+	private static let gold = karaColor("#E1BE6B") // --gold (accents, links, selection)
 	private static let text = karaColor("#FAFAFA") // --foreground
-	private static let card = karaColor("#1C1C1E") // --card (240 3% 11%)
-	private static let onGold = karaColor("#090710") // dark text/icon on gold buttons
+	private static let card = karaColor("#1C1C1E") // --card surfaces
+	private static let onButton = karaColor("#090710") // dark text on white buttons
+	private static let buttonFill = karaColor("#FAFAFA") // app primary button = white in dark mode
 	private static let success = karaColor("#16A34A") // --kara-green
-	private static let error = karaColor("#EF4444") // --kara-red / --destructive
+	private static let error = karaColor("#EF4444") // --kara-red
 
 	@MainActor
 	static func apply() {
 		applyMasterColors()
 		applyToolbar()
+		applyButtons()
 		applyScreenOverrides()
+		applyButtonText()
 	}
 
-	// Master palette — cascades to all screens. High confidence: these names are
-	// in the official iDenfy docs + the upstream README example.
+	// Master palette — cascades to all screens. High confidence: documented names.
 	@MainActor
 	private static func applyMasterColors() {
 		IdenfyCommonColors.idenfyBackgroundColorV2 = background
 		IdenfyCommonColors.idenfyMainColorV2 = gold
 		IdenfyCommonColors.idenfyMainDarkerColorV2 = gold
 		IdenfyCommonColors.idenfySecondColorV2 = text
-		IdenfyCommonColors.idenfyGradientColor1V2 = gold
-		IdenfyCommonColors.idenfyGradientColor2V2 = gold
-		// Splash titles/description/spinner default to idenfyBlackV2 (near-black);
-		// flip to light so they read on the dark background.
+		// Primary buttons are a gradient — make them solid white (app dark primary).
+		IdenfyCommonColors.idenfyGradientColor1V2 = buttonFill
+		IdenfyCommonColors.idenfyGradientColor2V2 = buttonFill
+		// Light-gray surfaces (privacy-policy cards, accepted-docs cards) default
+		// light → white text was invisible on them. Make them dark cards.
+		IdenfyCommonColors.idenfyLightGrayColor = card
+		// Splash titles/description/spinner default to idenfyBlackV2 (near-black).
 		IdenfyCommonColors.idenfyBlackV2 = text
+		// Photo-result details card.
+		IdenfyCommonColors.idenfyPhotoResultDetailsCardBackgroundColorV2 = card
 		// Status colors → match the app's semantic palette.
 		IdenfyCommonColors.idenfyStepSuccessColorV2 = success
 		IdenfyCommonColors.idenfyStepErrorColorV2 = error
 		IdenfyCommonColors.idenfyRedColorV2 = error
 		IdenfyCommonColors.idenfyDarkRedErrorColorV2 = error
-		IdenfyCommonColors.idenfyPhotoResultDetailsCardBackgroundColorV2 = card
 	}
 
 	@MainActor
 	private static func applyToolbar() {
 		IdenfyToolbarUISettingsV2.idenfyDefaultToolbarBackgroundColor = background
-		// Back/logo/language icons in gold. The logo asset we ship is monochrome,
-		// so this tint paints the Kara logo gold.
 		IdenfyToolbarUISettingsV2.idenfyDefaultToolbarBackIconTintColor = gold
-		IdenfyToolbarUISettingsV2.idenfyDefaultToolbarLogoIconTintColor = gold
-		IdenfyToolbarUISettingsV2.idenfyLanguageSelectionToolbarLanguageSelectionIconTintColor = gold
+		// No logo: the injected asset is transparent (see config plugin). Tint stays
+		// harmless. Hide the language globe by tinting it to the toolbar background —
+		// the SDK exposes no visibility flag for it (only the all-or-nothing
+		// idenfyToolbarHidden, which would also remove the close button).
+		IdenfyToolbarUISettingsV2.idenfyDefaultToolbarLogoIconTintColor = background
+		IdenfyToolbarUISettingsV2.idenfyLanguageSelectionToolbarLanguageSelectionIconTintColor = background
 		IdenfyToolbarUISettingsV2.idenfyLanguageSelectionToolbarCloseIconTintColor = gold
 	}
 
-	// ponytail: per-screen overrides for the screens the Kara flow actually shows
-	// (country+doc joined selection, doc selection fallback, photo result,
-	// results, face-auth intro, failed). This is the build-risk surface — if the
-	// iOS build fails on an unknown member, a property was renamed in the SDK
-	// version; remove the offending line, the masters above still theme the screen.
+	@MainActor
+	private static func applyButtons() {
+		// Pill corners like the app's rounded-full buttons (note SDK typo "Corder").
+		IdenfyButtonsUISettingsV2.idenfyButtonCorderRadius = CGFloat(28)
+		IdenfyButtonsUISettingsV2.idenfyChooseAnotherPhotoButtonCornerRadius = CGFloat(28)
+	}
+
+	// Per-screen overrides for the flow's screens. Build-risk surface — if the iOS
+	// build fails on an unknown member, that property was renamed; remove the line.
 	@MainActor
 	private static func applyScreenOverrides() {
-		// Country + document selection (joined — the primary selection screen).
+		// Country + document selection (joined — primary selection screen).
 		IdenfyCountryAndDocumentSelectionViewUISettingsV2.idenfyCountryAndDocumentSelectionViewItemSelectionBackgroundColor = card
-		IdenfyCountryAndDocumentSelectionViewUISettingsV2.idenfyCountryAndDocumentSelectionViewContinueButtonEnabledTextColor = onGold
+		IdenfyCountryAndDocumentSelectionViewUISettingsV2.idenfyCountryAndDocumentSelectionViewContinueButtonEnabledTextColor = onButton
 		IdenfyCountryAndDocumentSelectionViewUISettingsV2.idenfyCountryAndDocumentSelectionViewItemSelectionHighlightedBackgroundColor = gold
-		IdenfyCountryAndDocumentSelectionViewUISettingsV2.idenfyCountryAndDocumentSelectionViewItemSelectionHighlightedTextColor = onGold
+		IdenfyCountryAndDocumentSelectionViewUISettingsV2.idenfyCountryAndDocumentSelectionViewItemSelectionHighlightedTextColor = onButton
 		IdenfyCountryAndDocumentSelectionViewUISettingsV2.idenfyCountryAndDocumentSelectionViewItemSelectionHighlightedBorderColor = gold
 
 		// Document selection (fallback / non-joined).
 		IdenfyDocumentSelectionViewUISettingsV2.idenfyDocumentSelectionViewDocumentTableViewBackgroundColor = background
 		IdenfyDocumentSelectionViewUISettingsV2.idenfyDocumentSelectionViewDocumentTableViewCellBackgroundColor = card
 		IdenfyDocumentSelectionViewUISettingsV2.idenfyDocumentSelectionViewDocumentTableViewCellHighlightedBackgroundColor = gold
-		IdenfyDocumentSelectionViewUISettingsV2.idenfyDocumentSelectionViewDocumentTableViewCellHighlightedTextColor = onGold
-		IdenfyDocumentSelectionViewUISettingsV2.idenfyDocumentSelectionViewContinueButtonEnabledTextColor = onGold
+		IdenfyDocumentSelectionViewUISettingsV2.idenfyDocumentSelectionViewDocumentTableViewCellHighlightedTextColor = onButton
+		IdenfyDocumentSelectionViewUISettingsV2.idenfyDocumentSelectionViewContinueButtonEnabledTextColor = onButton
 
-		// Photo result (retake = flat secondary; continue = gold primary).
-		IdenfyPhotoResultViewUISettingsV2.idenfyPhotoResultViewRetakePhotoButtonBackgroundColor = card
-		IdenfyPhotoResultViewUISettingsV2.idenfyPhotoResultViewContinueButtonTextColor = onGold
+		// Photo result: continue = white primary (dark text); retake = gold outline.
+		IdenfyPhotoResultViewUISettingsV2.idenfyPhotoResultViewContinueButtonTextColor = onButton
+		IdenfyPhotoResultViewUISettingsV2.idenfyPhotoResultViewRetakePhotoButtonBackgroundColor = .clear
+		IdenfyPhotoResultViewUISettingsV2.idenfyPhotoResultViewRetakePhotoButtonTextColor = gold
+		IdenfyPhotoResultViewUISettingsV2.idenfyPhotoResultViewRetakePhotoButtonBorderColor = gold
 		IdenfyPhotoResultViewUISettingsV2.idenfyPhotoResultViewDetailsCardBackgroundColor = card
 
-		// Identification results / face-auth intro / failed — on-gold button text.
-		IdenfyIdentificationResultsViewUISettingsV2.idenfyIdentificationResultsViewRetakeButtonTextColor = onGold
-		IdenfyFaceAuthenticationInitialViewUISettingsV2.idenfyFaceAuthenticationInitialViewContinueButtonTextColor = onGold
-		IdenfyManualReviewingStatusFailedViewUISettingsV2.idenfyManualReviewingStatusFailedContinueButtonTextColor = onGold
+		// PDF result (proof-of-address upload): continue = white primary; retake = gold outline.
+		IdenfyPdfResultViewUISettingsV2.idenfyPdfResultViewContinueButtonTextColor = onButton
+		IdenfyPdfResultViewUISettingsV2.idenfyPdfResultViewRetakePdfButtonBackgroundColor = .clear
+		IdenfyPdfResultViewUISettingsV2.idenfyPdfResultViewRetakePdfButtonTextColor = gold
+		IdenfyPdfResultViewUISettingsV2.idenfyPdfResultViewRetakePdfButtonBorderColor = gold
+		IdenfyPdfResultViewUISettingsV2.idenfyPdfResultViewDetailsCardBackgroundColor = card
+
+		// Privacy policy: dark info cards (white text was invisible on light cards).
+		IdenfyPrivacyPolicyViewUISettingsV2.idenfyPrivacyPolicyCardBackgroundColor = card
+		IdenfyPrivacyPolicyViewUISettingsV2.idenfyPrivacyPolicyCardItemTextColor = text
+		IdenfyPrivacyPolicyViewUISettingsV2.idenfyPrivacyPolicyCardItemIconColor = gold
+		IdenfyPrivacyPolicyViewUISettingsV2.idenfyPrivacyPolicyAgreeButtonTextColor = onButton
+
+		// Language selection (defensive — globe is hidden, but theme it dark in case).
+		IdenfyLanguageSelectionViewUISettingsV2.idenfyLanguageSelectionViewLanguageTableViewBackgroundColor = background
+		IdenfyLanguageSelectionViewUISettingsV2.idenfyLanguageSelectionViewLanguageTableViewCellBackgroundColor = card
+		IdenfyLanguageSelectionViewUISettingsV2.idenfyLanguageSelectionViewLanguageTableViewCellHighlightedBackgroundColor = gold
+		IdenfyLanguageSelectionViewUISettingsV2.idenfyLanguageSelectionViewLanguageTableViewCellHighlightedTextColor = onButton
+
+		// Identification results / face-auth intro / failed — white primary buttons.
+		IdenfyIdentificationResultsViewUISettingsV2.idenfyIdentificationResultsViewRetakeButtonTextColor = onButton
+		IdenfyFaceAuthenticationInitialViewUISettingsV2.idenfyFaceAuthenticationInitialViewContinueButtonTextColor = onButton
+		IdenfyManualReviewingStatusFailedViewUISettingsV2.idenfyManualReviewingStatusFailedContinueButtonTextColor = onButton
+	}
+
+	// Primary buttons are now white (gradient → white). Their text defaults to
+	// idenfyWhite, which would be invisible on white — so every primary button in
+	// the Kara flow (document + selfie + proof-of-address) gets dark text here.
+	// ponytail: flow screens only. EID/bank/provider/MFA/NFC/additional-support
+	// aren't in this flow; if one ever appears, its primary button needs the same
+	// dark text (otherwise white-on-white). Outline buttons (retake/choose-another)
+	// stay gold-on-transparent and are set in applyScreenOverrides.
+	@MainActor
+	private static func applyButtonText() {
+		IdenfyPrivacyPolicyViewUISettingsV2.idenfyPrivacyPolicyAgreeButtonTextColor = onButton
+		IdenfyCountryAndDocumentSelectionViewUISettingsV2.idenfyCountryAndDocumentSelectionViewContinueButtonEnabledTextColor = onButton
+		IdenfyDocumentSelectionViewUISettingsV2.idenfyDocumentSelectionViewContinueButtonEnabledTextColor = onButton
+		IdenfyPhotoResultViewUISettingsV2.idenfyPhotoResultViewContinueButtonTextColor = onButton
+		IdenfyPdfResultViewUISettingsV2.idenfyPdfResultViewContinueButtonTextColor = onButton
+		IdenfyUploadPhotoViewUISettingsV2.idenfyUploadPhotoViewContinuePhotoButtonTextColor = onButton
+		IdenfyFaceAuthenticationInitialViewUISettingsV2.idenfyFaceAuthenticationInitialViewContinueButtonTextColor = onButton
+		IdenfyFaceAuthenticationResultsViewUISettingsV2.idenfyFaceAuthenticationResultsViewContinueButtonTextColor = onButton
+		IdenfyIdentificationSuspectedResultsViewUISettingsV2.idenfyIdentificationSuspectedResultsViewContinueButtonTextColor = onButton
+		IdenfyManualReviewingStatusFailedViewUISettingsV2.idenfyManualReviewingStatusFailedContinueButtonTextColor = onButton
+		IdenfyManualReviewingStatusApprovedViewUISettingsV2.idenfyManualReviewingStatusApprovedContinueButtonTextColor = onButton
+		IdenfyQuestionnaireViewUISettingsV2.idenfyQuestionnaireViewContinueButtonEnabledTextColor = onButton
+		// In-flow alerts (document not found / MRZ / mismatch / instructions).
+		IdenfyDocNotFoundAlertUISettigsV2.idenfyDocNotFoundAlertContinueButtonTextColor = onButton
+		IdenfyMrzNotFoundAlertUISettigsV2.idenfyMrzNotFoundAlertContinueButtonTextColor = onButton
+		IdenfyMismatchFoundAlertUISettigsV2.idenfyMismatchFoundAlertContinueButtonTextColor = onButton
+		IdenfyInstructionAlertUISettigsV2.idenfyInstructionAlertContinueButtonTextColor = onButton
 	}
 
 	// Free function (not a UIColor extension) so it can never collide with an
