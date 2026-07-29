@@ -26,6 +26,13 @@ enum KaraIdenfyTheme {
 	private static let buttonFill = karaColor("#FAFAFA")
 	private static let success = karaColor("#16A34A") // --kara-green
 	private static let error = karaColor("#EF4444") // --kara-red
+	private static let warning = karaColor("#E7B008") // --kara-yellow
+	private static let info = karaColor("#3B82F6") // --kara-blue
+	// Opacity scale, taken from the app's Button/border classes: white/10 for a
+	// hairline border, white/12 for a disabled fill, white/40 for disabled text.
+	private static let border = karaColor("#FAFAFA").withAlphaComponent(0.12)
+	private static let disabledFill = karaColor("#FAFAFA").withAlphaComponent(0.12)
+	private static let disabledText = karaColor("#FAFAFA").withAlphaComponent(0.4)
 
 	@MainActor
 	static func apply() {
@@ -35,6 +42,11 @@ enum KaraIdenfyTheme {
 		applyButtonText()
 		applyCornerRadii()
 		applySecondaryButtons()
+		applyDisabledButtons()
+		applySpinners()
+		applyStatusTints()
+		applyBordersAndRowHeights()
+		applyBodyTextSizes()
 		applySelectionCards()
 		applyDarkLists()
 		applyPopups()
@@ -72,6 +84,8 @@ enum KaraIdenfyTheme {
 	// half the height distorts the corners, and the SDK exposes no height hook.
 	private static let pill = CGFloat(22)
 	private static let cardRadius = CGFloat(16)
+	private static let hairline = CGFloat(1) // the app's `border`, not iDenfy's 2pt
+	private static let rowHeight = CGFloat(56) // matches the `large` button height
 
 	@MainActor
 	private static func applyCornerRadii() {
@@ -85,13 +99,16 @@ enum KaraIdenfyTheme {
 		IdenfyInstructionAlertUISettigsV2.idenfyInstructionAlertDetailsCardCornerRadius = cardRadius
 		IdenfyLoadingHUDUISettingsV2.idenfyLoadingHUDCornerRadius = cardRadius
 
-		// Selection cards, list panels and the country search field.
-		IdenfyCountryAndDocumentSelectionViewUISettingsV2.idenfyCountryAndDocumentSelectionViewItemSelectionCornerRadius = cardRadius
+		// The "Méthode de vérification" chips and the country field are ~45pt tall
+		// controls, same as a button — pill, not card radius.
+		IdenfyCountryAndDocumentSelectionViewUISettingsV2.idenfyCountryAndDocumentSelectionViewItemSelectionCornerRadius = pill
+		IdenfyIssuedCountryViewUISettingsV2.idenfyIssuedCountryViewCountryViewCorderRadius = pill
+		IdenfyCountrySelectionViewUISettingsV2.idenfyCountrySelectionViewCountrySearchBarCorderRadius = pill
+
+		// List panels stay on the card radius — they are tall surfaces.
 		IdenfyDocumentSelectionViewUISettingsV2.idenfyDocumentSelectionViewDocumentTableViewCornerRadius = cardRadius
 		IdenfyCountrySelectionViewUISettingsV2.idenfyCountrySelectionViewCountryTableViewCornerRadius = cardRadius
-		IdenfyCountrySelectionViewUISettingsV2.idenfyCountrySelectionViewCountrySearchBarCorderRadius = cardRadius
 		IdenfyLanguageSelectionViewUISettingsV2.idenfyLanguageSelectionViewLanguageTableViewCornerRadius = cardRadius
-		IdenfyIssuedCountryViewUISettingsV2.idenfyIssuedCountryViewCountryViewCorderRadius = cardRadius
 
 		// Captured-photo preview and the cropping frame.
 		IdenfyPhotoResultViewUISettingsV2.idenfyPhotoResultViewPhotoCornerRadius = cardRadius
@@ -256,6 +273,106 @@ enum KaraIdenfyTheme {
 		IdenfyMrzNotFoundAlertUISettigsV2.idenfyMrzNotFoundAlertContinueButtonTextColor = onButton
 		IdenfyMismatchFoundAlertUISettigsV2.idenfyMismatchFoundAlertContinueButtonTextColor = onButton
 		IdenfyInstructionAlertUISettigsV2.idenfyInstructionAlertContinueButtonTextColor = onButton
+		// End-of-flow and permission screens. Same white-on-white trap, and these
+		// are the ones a user actually lands on when something goes wrong
+		// (cancelled session, denied camera, NFC).
+		IdenfyAdditionalSupportViewUISettingsV2.idenfyAdditionalSupportViewContinueButtonTextColor = onButton
+		IdenfyIdentificationResultsViewUISettingsV2.idenfyIdentificationResultsViewRetakeButtonTextColor = onButton
+		IdenfyManualReviewingStatusWaitingViewUISettingsV2.idenfyManualReviewingStatusWaitingStopWaitingButtonTextColor = onButton
+		IdenfyCameraPermissionViewUISettingsV2.idenfyCameraPermissionViewGoToSettingsButtonTextColor = onButton
+		IdenfyIssuedCountryViewUISettingsV2.idenfyIssuedCountryViewBeginIdentificationButtonTextColor = onButton
+		IdenfyNFCReadingViewUISettingsV2.idenfyNFCReadingContinueButtonTextColor = onButton
+		IdenfyNFCReadingTimeOutViewUISettingsV2.idenfyNFCReadingTimeOutContinueButtonTextColor = onButton
+		IdenfyNFCRequiredViewUISettingsV2.idenfyNFCRequiredContinueButtonTextColor = onButton
+	}
+
+	// Disabled primary buttons. iDenfy's default is a white@20% block with
+	// white@50% text — heavier than ours, which is a transparent pill with a
+	// white/20 border. No border knob here, so: lighter fill, dimmer label.
+	@MainActor
+	private static func applyDisabledButtons() {
+		IdenfyCountryAndDocumentSelectionViewUISettingsV2.idenfyCountryAndDocumentSelectionViewContinueButtonDisabledBackgroundColor = disabledFill
+		IdenfyCountryAndDocumentSelectionViewUISettingsV2.idenfyCountryAndDocumentSelectionViewContinueButtonDisabledTextColor = disabledText
+		IdenfyDocumentSelectionViewUISettingsV2.idenfyDocumentSelectionViewContinueButtonDisabledBackgroundColor = disabledFill
+		IdenfyDocumentSelectionViewUISettingsV2.idenfyDocumentSelectionViewContinueButtonDisabledTextColor = disabledText
+		IdenfyStaticCameraOnBoardingViewUISettingsV2.idenfyCameraOnBoardingDisabledContinueButtonBackgroundColor = disabledFill
+		IdenfyStaticCameraOnBoardingViewUISettingsV2.idenfyCameraOnBoardingDisabledContinueButtonTextColor = disabledText
+		IdenfyMismatchFoundAlertUISettigsV2.idenfyMismatchFoundAlertContinueDisabledButtonBackgroundColor = disabledFill
+		IdenfyMismatchFoundAlertUISettigsV2.idenfyMismatchFoundAlertContinueDisabledButtonTextColor = disabledText
+		IdenfyQuestionnaireViewUISettingsV2.idenfyQuestionnaireViewContinueButtonDisabledBackgroundColor = disabledFill
+		IdenfyQuestionnaireViewUISettingsV2.idenfyQuestionnaireViewContinueButtonDisabledTextColor = disabledText
+	}
+
+	// Spinners default to white. On the white primary buttons that is invisible;
+	// everywhere else (dark cards, dark lists) gold matches the app's loaders.
+	@MainActor
+	private static func applySpinners() {
+		IdenfyPrivacyPolicyViewUISettingsV2.idenfyPrivacyPolicyAgreeButtonLoadingSpinnerTintColor = onButton
+		IdenfyDocumentSelectionViewUISettingsV2.idenfyDocumentSelectionViewContinueButtonLoadingSpinnerTintColor = onButton
+		IdenfyQuestionnaireViewUISettingsV2.idenfyQuestionnaireViewContinueButtonLoadingSpinnerTintColor = onButton
+		IdenfyCountryAndDocumentSelectionViewUISettingsV2.idenfyCountryAndDocumentSelectionViewCountryLoadingSpinnerTintColor = gold
+		IdenfyCountrySelectionViewUISettingsV2.idenfyCountrySelectionViewCountryLoadingSpinnerTintColor = gold
+		IdenfyLoadingHUDUISettingsV2.idenfyLoadingSpinnerTintColor = gold
+	}
+
+	// Status tints. Every "light" colour below is a light-mode pastel (#FFEBEE,
+	// #FFF3E0, #E8F5E9, ...) that renders as a glaring near-white block on our
+	// background — the blur/glare and auto-capture-failure cards use them. Swap
+	// for 12% washes of the app's semantic colours, the way our own cards do it.
+	@MainActor
+	private static func applyStatusTints() {
+		IdenfyCommonColors.idenfyErrorLightRedColorV2 = error.withAlphaComponent(0.12)
+		IdenfyCommonColors.idenfyWarningLightYellowV2 = warning.withAlphaComponent(0.12)
+		IdenfyCommonColors.idenfyBackgroundGreenV2 = success.withAlphaComponent(0.12)
+		IdenfyCommonColors.idenfyLightBlueColor = info.withAlphaComponent(0.12)
+		IdenfyCommonColors.idenfyWarningYellowV2 = warning
+		IdenfyCommonColors.idenfyBlueColor = info
+		IdenfyCommonColors.idenfyBorderGreenV2 = success
+		IdenfyCommonColors.idenfyFaceDetectedColor = success
+		IdenfyCommonColors.idenfyFaceNotDetectedColor = disabledText
+		// iDenfy purple survives in a few highlight states. Fold it into gold.
+		IdenfyCommonColors.idenfyPurpleV2 = gold
+		IdenfyCommonColors.idenfyPurpleTextV2 = onButton
+		IdenfyCommonColors.idenfyBackgroundPurpleV2 = gold
+	}
+
+	// 2pt borders everywhere; the app uses 1pt at ~12% white. Row heights go to
+	// 56 to match our large control height (the document list already ships 56).
+	@MainActor
+	private static func applyBordersAndRowHeights() {
+		IdenfyDocumentSelectionViewUISettingsV2.idenfyDocumentSelectionViewDocumentTableViewBorderWidth = hairline
+		IdenfyDocumentSelectionViewUISettingsV2.idenfyDocumentSelectionViewDocumentTableViewCellBorderWidth = hairline
+		IdenfyDocumentSelectionViewUISettingsV2.idenfyDocumentSelectionViewDocumentTableViewBorderColor = border
+		IdenfyDocumentSelectionViewUISettingsV2.idenfyDocumentSelectionViewDocumentTableViewCellBorderColor = border
+		IdenfyCountrySelectionViewUISettingsV2.idenfyCountrySelectionViewCountrySearchBarBorderWidth = hairline
+		IdenfyCountrySelectionViewUISettingsV2.idenfyCountrySelectionViewCountryTableViewBorderWidth = hairline
+		IdenfyCountrySelectionViewUISettingsV2.idenfyCountrySelectionViewCountryTableViewCellBorderWidth = hairline
+		IdenfyLanguageSelectionViewUISettingsV2.idenfyLanguageSelectionViewLanguageTableViewBorderWidth = hairline
+		IdenfyLanguageSelectionViewUISettingsV2.idenfyLanguageSelectionViewLanguageTableViewCellBorderWidth = hairline
+		IdenfyIssuedCountryViewUISettingsV2.idenfyIssuedCountryViewCountryViewBorderWidth = hairline
+		IdenfyUploadPhotoViewUISettingsV2.idenfyUploadPhotoViewCroppingViewBorderWidth = hairline
+		IdenfyPhotoResultViewUISettingsV2.idenfyPhotoResultViewPhotoBorderWidth = hairline
+
+		IdenfyCountryAndDocumentSelectionViewUISettingsV2.idenfyCountryAndDocumentSelectionViewCountryTableViewCellHeight = rowHeight
+		IdenfyCountrySelectionViewUISettingsV2.idenfyCountrySelectionViewCountryTableViewCellHeight = rowHeight
+		IdenfyLanguageSelectionViewUISettingsV2.idenfyLanguageSelectionViewLanguageTableViewCellHeight = rowHeight
+	}
+
+	// The SDK sets its screen descriptions at 13 on half the screens and 15 on the
+	// other half. Unify at 15 — closer to our `text-base` and the size the privacy
+	// screen already uses. Descriptions wrap, so nothing can truncate.
+	@MainActor
+	private static func applyBodyTextSizes() {
+		let body = UIFont(name: ConstsIdenfyFonts.idenfyFontRegularV2, size: 15)
+		IdenfyCountryAndDocumentSelectionViewUISettingsV2.idenfyCountryAndDocumentSelectionViewDescriptionFont = body
+		IdenfyDocumentSelectionViewUISettingsV2.idenfyDocumentSelectionViewDescriptionFont = body
+		IdenfyPhotoResultViewUISettingsV2.idenfyPhotoResultViewDescriptionFont = body
+		IdenfyUploadPhotoViewUISettingsV2.idenfyUploadPhotoViewDescriptionFont = body
+		IdenfyCameraPermissionViewUISettingsV2.idenfyCameraPermissionViewDescriptionFont = body
+		IdenfyIdentificationResultsViewUISettingsV2.idenfyIdentificationResultsViewDescriptionFont = body
+		IdenfyIssuedCountryViewUISettingsV2.idenfyIssuedCountryViewDescriptionFont = body
+		IdenfyManualReviewingStatusFailedViewUISettingsV2.idenfyManualReviewingStatusFailedCommonInformationDescriptionFont = body
+		IdenfyManualReviewingStatusWaitingViewUISettingsV2.idenfyManualReviewingStatusWaitingCommonInformationDescriptionFont = body
 	}
 
 	// Country + document selection cards (the joined first screen). iDenfy's
