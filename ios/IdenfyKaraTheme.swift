@@ -29,12 +29,66 @@ enum KaraIdenfyTheme {
 
 	@MainActor
 	static func apply() {
+		applyFonts() // must stay first — see applyFonts()
 		applyMasterColors()
 		applyToolbar()
 		applyButtonText()
+		applyButtonShape()
+		applySecondaryButtons()
 		applySelectionCards()
 		applyDarkLists()
 		applyPopups()
+	}
+
+	// Typography — Gabarito, the app's UI font. It is already embedded in the main
+	// bundle by the expo-font config plugin (listed in Info.plist `UIAppFonts`).
+	//
+	// Two hooks on purpose:
+	//   - `customFont*FileName` is iDenfy's documented path: the SDK registers that
+	//     file from the main bundle and calls `updateFontName` with its PostScript
+	//     name.
+	//   - the `idenfyFont*V2` PostScript names are the fallback if that
+	//     registration turns out to be a no-op. UIAppFonts has already registered
+	//     the faces, so `UIFont(name:)` resolves either way.
+	//
+	// MUST run before any `*UISettingsV2` font property is read: those statics are
+	// lazy and capture the font name on first access.
+	@MainActor
+	private static func applyFonts() {
+		ConstsIdenfyFonts.customFontBoldFileName = "Gabarito_700Bold.ttf"
+		ConstsIdenfyFonts.customFontSemiBoldFileName = "Gabarito_600SemiBold.ttf"
+		ConstsIdenfyFonts.customFontRegularFileName = "Gabarito_400Regular.ttf"
+		ConstsIdenfyFonts.idenfyFontBoldV2 = "Gabarito-Bold"
+		ConstsIdenfyFonts.idenfyFontSemiBoldV2 = "Gabarito-SemiBold"
+		ConstsIdenfyFonts.idenfyFontRegularV2 = "Gabarito-Regular"
+	}
+
+	// Pill buttons, matching the app's `rounded-full`. iDenfy's buttons measure
+	// ~45pt tall, so 22 is a full pill there and degrades to a rounded rect on
+	// anything taller. Deliberately not larger: `layer.cornerRadius` above half
+	// the height distorts the corners, and the SDK exposes no height hook.
+	@MainActor
+	private static func applyButtonShape() {
+		IdenfyButtonsUISettingsV2.idenfyButtonCorderRadius = CGFloat(22)
+		IdenfyButtonsUISettingsV2.idenfyChooseAnotherPhotoButtonCornerRadius = CGFloat(22)
+	}
+
+	// Secondary "retake / choose another" buttons — the whole family, so the four
+	// screens stay consistent. Default is a white fill with a thin gold border,
+	// which reads as an unfinished outline. Solid gold pill + dark text instead
+	// (10.9:1 contrast).
+	@MainActor
+	private static func applySecondaryButtons() {
+		IdenfyPhotoResultViewUISettingsV2.idenfyPhotoResultViewRetakePhotoButtonBackgroundColor = gold
+		IdenfyPhotoResultViewUISettingsV2.idenfyPhotoResultViewRetakePhotoButtonBorderColor = gold
+		IdenfyPdfResultViewUISettingsV2.idenfyPdfResultViewRetakePdfButtonBackgroundColor = gold
+		IdenfyPdfResultViewUISettingsV2.idenfyPdfResultViewRetakePdfButtonBorderColor = gold
+		IdenfyUploadPhotoViewUISettingsV2.idenfyUploadPhotoViewChooseAnotherPhotoButtonBackgroundColor = gold
+		IdenfyUploadPhotoViewUISettingsV2.idenfyUploadPhotoViewChooseAnotherPhotoButtonBorderColor = gold
+		IdenfyUploadPhotoViewUISettingsV2.idenfyUploadPhotoViewChooseAnotherPhotoButtonTextColor = onButton
+		IdenfyFaceAuthenticationCommonUISettingsV2.idenfyFaceAuthenticationRetryAlertRetryButtonBackgroundColor = gold
+		IdenfyFaceAuthenticationCommonUISettingsV2.idenfyFaceAuthenticationRetryAlertRetryButtonButtonBorderColor = gold
+		IdenfyFaceAuthenticationCommonUISettingsV2.idenfyFaceAuthenticationRetryAlertRetryButtonTextColor = onButton
 	}
 
 	// Internet connection / stability popups (the slide-in toasts). Default light
@@ -68,6 +122,7 @@ enum KaraIdenfyTheme {
 		settings.livenessReadyScreenButtonBackgroundNormalColor = gold
 		settings.livenessReadyScreenButtonBackgroundHighlightedColor = gold
 		settings.livenessReadyScreenButtonBackgroundDisabledColor = card
+		settings.livenessReadyScreenButtonCornerRadius = 22 // pill, like every other button
 		settings.livenessResultScreenForegroundColor = text
 		settings.livenessResultScreenIndicatorColor = gold
 		settings.livenessResultScreenUploadProgressFillColor = gold
@@ -130,6 +185,8 @@ enum KaraIdenfyTheme {
 		IdenfyLoadingHUDUISettingsV2.idenfyLoadingHUDBackgroundColor = card
 		IdenfyLoadingHUDUISettingsV2.idenfyLoadingHUDTitleColor = text
 		IdenfyLoadingHUDUISettingsV2.idenfyLoadingHUDDescriptionColor = text
+		// Splash spinner inherits idenfyBlackV2 (now light) → white. Gold instead.
+		IdenfySplashScreenViewUISettingsV2.idenfySplashScreenViewSpinnerTintColor = gold
 	}
 
 	@MainActor
