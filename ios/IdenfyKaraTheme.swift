@@ -66,7 +66,7 @@ enum KaraIdenfyTheme {
 	// MUST run before any `*UISettingsV2` font property is read: those statics are
 	// lazy and capture the font name on first access.
 	@MainActor
-	private static func applyFonts() {
+	static func applyFonts() {
 		ConstsIdenfyFonts.customFontBoldFileName = "Gabarito_700Bold.ttf"
 		ConstsIdenfyFonts.customFontSemiBoldFileName = "Gabarito_600SemiBold.ttf"
 		ConstsIdenfyFonts.customFontRegularFileName = "Gabarito_400Regular.ttf"
@@ -179,10 +179,16 @@ enum KaraIdenfyTheme {
 		return settings
 	}
 
-	// Loads the bundled Kara logo. Looks in the pod's resource bundle first, then
-	// the host/main bundle — covers both static and dynamic framework linkage.
 	@MainActor
 	private static func brandingLogo() -> UIImage? {
+		karaImage("KaraBrandingLogo")
+	}
+
+	// Looks in the pod's resource bundle first, then the host/main bundle —
+	// covers both static and dynamic framework linkage. The logo ships in the
+	// pod; the background ships in the app's asset catalog (config plugin).
+	@MainActor
+	private static func karaImage(_ name: String) -> UIImage? {
 		let host = Bundle(for: KaraBundleToken.self)
 		let bundles = [
 			host.url(forResource: "KaraIdenfyResources", withExtension: "bundle")
@@ -191,17 +197,46 @@ enum KaraIdenfyTheme {
 			Bundle.main,
 		].compactMap { $0 }
 		for bundle in bundles {
-			if let image = UIImage(named: "KaraBrandingLogo", in: bundle, compatibleWith: nil) {
+			if let image = UIImage(named: name, in: bundle, compatibleWith: nil) {
 				return image
 			}
 		}
 		return nil
 	}
 
+	// The app paints every screen over assets/backgrounds/general-background.jpg.
+	// iDenfy only ever takes a UIColor, so hand it a pattern colour: the image
+	// aspect-filled into a screen-wide bitmap, which then paints 1:1 on any
+	// full-screen view (a pattern is anchored to the view's own origin).
+	//
+	// ponytail: the canvas is two screens tall with the image's black bottom
+	// extended below it, so scrolling content up to that height never reaches the
+	// tile seam. Taller content would repeat the glow — raise the multiplier then.
+	// Falls back to the flat colour if the asset is missing.
+	@MainActor
+	private static func backgroundFill() -> UIColor {
+		guard let image = karaImage("KaraIdenfyBackground") else { return background }
+		let screen = UIScreen.main.bounds.size
+		let canvas = CGSize(width: screen.width, height: screen.height * 2)
+		let tile = UIGraphicsImageRenderer(size: canvas).image { context in
+			background.setFill()
+			context.fill(CGRect(origin: .zero, size: canvas))
+			let ratio = max(screen.width / image.size.width, screen.height / image.size.height)
+			let drawn = CGSize(width: image.size.width * ratio, height: image.size.height * ratio)
+			image.draw(in: CGRect(
+				x: (screen.width - drawn.width) / 2,
+				y: 0,
+				width: drawn.width,
+				height: drawn.height
+			))
+		}
+		return UIColor(patternImage: tile)
+	}
+
 	// Master palette — cascades to all screens. High confidence: documented names.
 	@MainActor
 	private static func applyMasterColors() {
-		IdenfyCommonColors.idenfyBackgroundColorV2 = background
+		IdenfyCommonColors.idenfyBackgroundColorV2 = backgroundFill()
 		IdenfyCommonColors.idenfyMainColorV2 = gold
 		IdenfyCommonColors.idenfyMainDarkerColorV2 = gold
 		IdenfyCommonColors.idenfySecondColorV2 = text
@@ -234,7 +269,11 @@ enum KaraIdenfyTheme {
 
 	@MainActor
 	private static func applyToolbar() {
-		IdenfyToolbarUISettingsV2.idenfyDefaultToolbarBackgroundColor = background
+		// Reuses the pattern already built in applyMasterColors (runs first), so the
+		// toolbar continues the image instead of banding against it. Its pattern
+		// phase starts at its own origin, ~47pt lower than the screen's, which is
+		// imperceptible on a gradient this smooth.
+		IdenfyToolbarUISettingsV2.idenfyDefaultToolbarBackgroundColor = IdenfyCommonColors.idenfyBackgroundColorV2
 		IdenfyToolbarUISettingsV2.idenfyDefaultToolbarBackIconTintColor = gold
 		IdenfyToolbarUISettingsV2.idenfyLanguageSelectionToolbarCloseIconTintColor = gold
 		// Hide the iDenfy wordmark: the toolbar exposes no title-text property, so

@@ -32,6 +32,11 @@ class IdenfyReactNative: NSObject {
             SdkVersionManager.platformWrapper = "reactnative"
             let idenfyController = IdenfyController.shared
             idenfyController.initializeIdenfySDKV2WithManual(idenfySettingsV2: idenfySettingsV2)
+            // The SDK re-registers its own HK Grotesk during init and overwrites
+            // ConstsIdenfyFonts, so the font names have to be restated afterwards.
+            // Still set before init too: the screen settings read them lazily and
+            // nothing guarantees which side runs first.
+            KaraIdenfyTheme.applyFonts()
 
             let idenfyVC = idenfyController.instantiateNavigationController()
             
@@ -116,6 +121,11 @@ class IdenfyReactNative: NSObject {
             SdkVersionManager.platformWrapper = "reactnative"
             let idenfyController = IdenfyController.shared
             idenfyController.initializeIdenfySDKV2WithManual(idenfySettingsV2: idenfySettingsV2)
+            // The SDK re-registers its own HK Grotesk during init and overwrites
+            // ConstsIdenfyFonts, so the font names have to be restated afterwards.
+            // Still set before init too: the screen settings read them lazily and
+            // nothing guarantees which side runs first.
+            KaraIdenfyTheme.applyFonts()
 
             let idenfyVC = idenfyController.instantiateNavigationController()
 
