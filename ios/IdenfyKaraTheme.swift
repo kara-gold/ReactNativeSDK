@@ -24,6 +24,7 @@ enum KaraIdenfyTheme {
 	private static let card = karaColor("#1C1C1E") // --card surfaces
 	private static let onButton = karaColor("#090710") // dark text on white buttons
 	private static let buttonFill = karaColor("#FAFAFA")
+	private static let secondaryFill = karaColor("#262626") // --secondary, our grey button
 	private static let success = karaColor("#16A34A") // --kara-green
 	private static let error = karaColor("#EF4444") // --kara-red
 	private static let warning = karaColor("#E7B008") // --kara-yellow
@@ -120,21 +121,23 @@ enum KaraIdenfyTheme {
 	}
 
 	// Secondary "retake / choose another" buttons — the whole family, so the four
-	// screens stay consistent. Default is a white fill with a thin gold border,
-	// which reads as an unfinished outline. Solid gold pill + dark text instead
-	// (10.9:1 contrast).
+	// screens stay consistent. iDenfy ships a white fill with a thin coloured
+	// border; we use the app's grey `secondary` button instead (the same one our
+	// cancel actions use), so gold stays reserved for accents.
 	@MainActor
 	private static func applySecondaryButtons() {
-		IdenfyPhotoResultViewUISettingsV2.idenfyPhotoResultViewRetakePhotoButtonBackgroundColor = gold
-		IdenfyPhotoResultViewUISettingsV2.idenfyPhotoResultViewRetakePhotoButtonBorderColor = gold
-		IdenfyPdfResultViewUISettingsV2.idenfyPdfResultViewRetakePdfButtonBackgroundColor = gold
-		IdenfyPdfResultViewUISettingsV2.idenfyPdfResultViewRetakePdfButtonBorderColor = gold
-		IdenfyUploadPhotoViewUISettingsV2.idenfyUploadPhotoViewChooseAnotherPhotoButtonBackgroundColor = gold
-		IdenfyUploadPhotoViewUISettingsV2.idenfyUploadPhotoViewChooseAnotherPhotoButtonBorderColor = gold
-		IdenfyUploadPhotoViewUISettingsV2.idenfyUploadPhotoViewChooseAnotherPhotoButtonTextColor = onButton
-		IdenfyFaceAuthenticationCommonUISettingsV2.idenfyFaceAuthenticationRetryAlertRetryButtonBackgroundColor = gold
-		IdenfyFaceAuthenticationCommonUISettingsV2.idenfyFaceAuthenticationRetryAlertRetryButtonButtonBorderColor = gold
-		IdenfyFaceAuthenticationCommonUISettingsV2.idenfyFaceAuthenticationRetryAlertRetryButtonTextColor = onButton
+		IdenfyPhotoResultViewUISettingsV2.idenfyPhotoResultViewRetakePhotoButtonBackgroundColor = secondaryFill
+		IdenfyPhotoResultViewUISettingsV2.idenfyPhotoResultViewRetakePhotoButtonBorderColor = secondaryFill
+		IdenfyPhotoResultViewUISettingsV2.idenfyPhotoResultViewRetakePhotoButtonTextColor = text
+		IdenfyPdfResultViewUISettingsV2.idenfyPdfResultViewRetakePdfButtonBackgroundColor = secondaryFill
+		IdenfyPdfResultViewUISettingsV2.idenfyPdfResultViewRetakePdfButtonBorderColor = secondaryFill
+		IdenfyPdfResultViewUISettingsV2.idenfyPdfResultViewRetakePdfButtonTextColor = text
+		IdenfyUploadPhotoViewUISettingsV2.idenfyUploadPhotoViewChooseAnotherPhotoButtonBackgroundColor = secondaryFill
+		IdenfyUploadPhotoViewUISettingsV2.idenfyUploadPhotoViewChooseAnotherPhotoButtonBorderColor = secondaryFill
+		IdenfyUploadPhotoViewUISettingsV2.idenfyUploadPhotoViewChooseAnotherPhotoButtonTextColor = text
+		IdenfyFaceAuthenticationCommonUISettingsV2.idenfyFaceAuthenticationRetryAlertRetryButtonBackgroundColor = secondaryFill
+		IdenfyFaceAuthenticationCommonUISettingsV2.idenfyFaceAuthenticationRetryAlertRetryButtonButtonBorderColor = secondaryFill
+		IdenfyFaceAuthenticationCommonUISettingsV2.idenfyFaceAuthenticationRetryAlertRetryButtonTextColor = text
 	}
 
 	// Internet connection / stability popups (the slide-in toasts). Default light
@@ -277,13 +280,20 @@ enum KaraIdenfyTheme {
 		// phase starts at its own origin, ~47pt lower than the screen's, which is
 		// imperceptible on a gradient this smooth.
 		IdenfyToolbarUISettingsV2.idenfyDefaultToolbarBackgroundColor = IdenfyCommonColors.idenfyBackgroundColorV2
-		IdenfyToolbarUISettingsV2.idenfyDefaultToolbarBackIconTintColor = gold
-		IdenfyToolbarUISettingsV2.idenfyLanguageSelectionToolbarCloseIconTintColor = gold
-		// Hide the iDenfy wordmark: the toolbar exposes no title-text property, so
-		// we can't show "Identité" — tint the logo to the background to make it
-		// vanish (only the all-or-nothing idenfyToolbarHidden would remove it
-		// otherwise, which would also drop the close/back button).
-		IdenfyToolbarUISettingsV2.idenfyDefaultToolbarLogoIconTintColor = background
+		// The default toolbar draws a black drop shadow, which reads as a darker
+		// band separating the header from the page. Our headers have no shadow.
+		IdenfyToolbarUISettingsV2.idenfyDefaultToolbarShadowOpacity = 0
+		// Pinned so the header keeps one height across the flow instead of varying
+		// with each screen's content.
+		IdenfyToolbarUISettingsV2.idenfyToolbarHeight = 60
+		// Back arrow and close icon in the app's white, not gold.
+		IdenfyToolbarUISettingsV2.idenfyDefaultToolbarBackIconTintColor = text
+		IdenfyToolbarUISettingsV2.idenfyCameraPreviewSessionToolbarBackIconTintColor = text
+		IdenfyToolbarUISettingsV2.idenfyLanguageSelectionToolbarCloseIconTintColor = text
+		// The toolbar has no title-text property: its centre is an image view. The
+		// app ships a "KYC" wordmark under iDenfy's own asset name, and this tint
+		// colours it — so the shape comes from the asset, the colour stays here.
+		IdenfyToolbarUISettingsV2.idenfyDefaultToolbarLogoIconTintColor = text
 	}
 
 	@MainActor
@@ -298,10 +308,6 @@ enum KaraIdenfyTheme {
 		IdenfyStaticCameraOnBoardingViewUISettingsV2.idenfyCameraOnBoardingEnabledContinueButtonTextColor = onButton
 		IdenfyStaticCameraOnBoardingViewUISettingsV2.idenfyCameraOnBoardingDisabledContinueButtonTextColor = onButton
 		IdenfyPhotoResultViewUISettingsV2.idenfyPhotoResultViewContinueButtonTextColor = onButton
-		// "Take a new photo" (retake): default gold text sits on a light button →
-		// low contrast. Force dark text — on both the photo and PDF result screens.
-		IdenfyPhotoResultViewUISettingsV2.idenfyPhotoResultViewRetakePhotoButtonTextColor = onButton
-		IdenfyPdfResultViewUISettingsV2.idenfyPdfResultViewRetakePdfButtonTextColor = onButton
 		IdenfyPdfResultViewUISettingsV2.idenfyPdfResultViewContinueButtonTextColor = onButton
 		IdenfyUploadPhotoViewUISettingsV2.idenfyUploadPhotoViewContinuePhotoButtonTextColor = onButton
 		IdenfyFaceAuthenticationInitialViewUISettingsV2.idenfyFaceAuthenticationInitialViewContinueButtonTextColor = onButton

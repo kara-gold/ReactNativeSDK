@@ -11,6 +11,17 @@ class GetSdkConfig {
   @MainActor
   static func getIdenfySettingsFromConfig(config: NSDictionary, authToken: String) -> IdenfySettingsV2 {
     var idenfySettings = IdenfyBuilderV2()
+    // Built before (and applied after) the optional config maps. The Kara app
+    // calls start({ authToken }) with neither an `idenfySettings` nor an
+    // `idenfyUISettings` key, so anything nested inside those `if let`s never ran:
+    // the Kara liveness theme was silently dropped and FaceTec rendered with
+    // iDenfy's own colours and logo.
+    var idenfyUISettingsV2 = IdenfyUIBuilderV2()
+    idenfyUISettingsV2 = idenfyUISettingsV2.withLivenessUISettings(KaraIdenfyTheme.makeLivenessSettings())
+    // Skip iDenfy's own result screens (including the "further investigation"
+    // one) and hand control straight back to the app.
+    idenfyUISettingsV2 = idenfyUISettingsV2.withImmediateRedirect(.full)
+
     if let map = config["idenfySettings"] as? NSDictionary {
       
       if let unwrappedSslPinning = map["sslPinning"] as? Bool {
@@ -22,9 +33,6 @@ class GetSdkConfig {
       }
       
       if let uiSettingsMap = map["idenfyUISettings"] as? NSDictionary {
-        var idenfyUISettingsV2 = IdenfyUIBuilderV2()
-        idenfyUISettingsV2 = idenfyUISettingsV2.withLivenessUISettings(KaraIdenfyTheme.makeLivenessSettings())
-        
         if let isAdditionalSupportEnabled = uiSettingsMap["isAdditionalSupportEnabled"] as? Bool {
           idenfyUISettingsV2 = idenfyUISettingsV2.withAdditionalSupportView(isAdditionalSupportEnabled)
         }
@@ -91,9 +99,9 @@ class GetSdkConfig {
           default: break
           }
         }
-        idenfySettings = idenfySettings.withUISettingsV2(idenfyUISettingsV2.build())
       }
     }
+    idenfySettings = idenfySettings.withUISettingsV2(idenfyUISettingsV2.build())
     return idenfySettings.withAuthToken(authToken).build()
   }
   
