@@ -33,7 +33,7 @@ enum KaraIdenfyTheme {
 		applyMasterColors()
 		applyToolbar()
 		applyButtonText()
-		applyButtonShape()
+		applyCornerRadii()
 		applySecondaryButtons()
 		applySelectionCards()
 		applyDarkLists()
@@ -63,14 +63,40 @@ enum KaraIdenfyTheme {
 		ConstsIdenfyFonts.idenfyFontRegularV2 = "Gabarito-Regular"
 	}
 
-	// Pill buttons, matching the app's `rounded-full`. iDenfy's buttons measure
-	// ~45pt tall, so 22 is a full pill there and degrades to a rounded rect on
-	// anything taller. Deliberately not larger: `layer.cornerRadius` above half
-	// the height distorts the corners, and the SDK exposes no height hook.
+	// Two radii, mirroring the app: `rounded-full` for buttons, `rounded-2xl`
+	// (16pt) for every other surface. iDenfy defaults to 2-4pt everywhere, which
+	// reads as a different product next to ours.
+	//
+	// 22 is a full pill at iDenfy's ~45pt button height and degrades to a rounded
+	// rect on anything taller. Deliberately not larger: `layer.cornerRadius` above
+	// half the height distorts the corners, and the SDK exposes no height hook.
+	private static let pill = CGFloat(22)
+	private static let cardRadius = CGFloat(16)
+
 	@MainActor
-	private static func applyButtonShape() {
-		IdenfyButtonsUISettingsV2.idenfyButtonCorderRadius = CGFloat(22)
-		IdenfyButtonsUISettingsV2.idenfyChooseAnotherPhotoButtonCornerRadius = CGFloat(22)
+	private static func applyCornerRadii() {
+		IdenfyButtonsUISettingsV2.idenfyButtonCorderRadius = pill
+		IdenfyButtonsUISettingsV2.idenfyChooseAnotherPhotoButtonCornerRadius = pill
+
+		// Cards and panels.
+		IdenfyPrivacyPolicyViewUISettingsV2.idenfyPrivacyPolicyCardBorderRadius = cardRadius
+		IdenfyPhotoResultViewUISettingsV2.idenfyPhotoResultViewDetailsCardCornerRadius = cardRadius
+		IdenfyPdfResultViewUISettingsV2.idenfyPdfResultViewDetailsCardCornerRadius = cardRadius
+		IdenfyInstructionAlertUISettigsV2.idenfyInstructionAlertDetailsCardCornerRadius = cardRadius
+		IdenfyLoadingHUDUISettingsV2.idenfyLoadingHUDCornerRadius = cardRadius
+
+		// Selection cards, list panels and the country search field.
+		IdenfyCountryAndDocumentSelectionViewUISettingsV2.idenfyCountryAndDocumentSelectionViewItemSelectionCornerRadius = cardRadius
+		IdenfyDocumentSelectionViewUISettingsV2.idenfyDocumentSelectionViewDocumentTableViewCornerRadius = cardRadius
+		IdenfyCountrySelectionViewUISettingsV2.idenfyCountrySelectionViewCountryTableViewCornerRadius = cardRadius
+		IdenfyCountrySelectionViewUISettingsV2.idenfyCountrySelectionViewCountrySearchBarCorderRadius = cardRadius
+		IdenfyLanguageSelectionViewUISettingsV2.idenfyLanguageSelectionViewLanguageTableViewCornerRadius = cardRadius
+		IdenfyIssuedCountryViewUISettingsV2.idenfyIssuedCountryViewCountryViewCorderRadius = cardRadius
+
+		// Captured-photo preview and the cropping frame.
+		IdenfyPhotoResultViewUISettingsV2.idenfyPhotoResultViewPhotoCornerRadius = cardRadius
+		IdenfyUploadPhotoViewUISettingsV2.idenfyUploadPhotoViewCroppingViewCornerRadius = cardRadius
+		IdenfyUploadPhotoViewUISettingsV2.idenfyUploadPhotoViewCroppingRectangleCornerRadius = cardRadius
 	}
 
 	// Secondary "retake / choose another" buttons — the whole family, so the four
@@ -122,7 +148,7 @@ enum KaraIdenfyTheme {
 		settings.livenessReadyScreenButtonBackgroundNormalColor = gold
 		settings.livenessReadyScreenButtonBackgroundHighlightedColor = gold
 		settings.livenessReadyScreenButtonBackgroundDisabledColor = card
-		settings.livenessReadyScreenButtonCornerRadius = 22 // pill, like every other button
+		settings.livenessReadyScreenButtonCornerRadius = Int32(pill)
 		settings.livenessResultScreenForegroundColor = text
 		settings.livenessResultScreenIndicatorColor = gold
 		settings.livenessResultScreenUploadProgressFillColor = gold
