@@ -56,17 +56,20 @@ enum KaraIdenfyTheme {
 	// bundle by the expo-font config plugin (listed in Info.plist `UIAppFonts`).
 	//
 	// Two hooks on purpose:
-	//   - `customFont*FileName` is iDenfy's documented path: the SDK registers that
-	//     file from the main bundle and calls `updateFontName` with its PostScript
-	//     name.
-	//   - the `idenfyFont*V2` PostScript names are the fallback if that
-	//     registration turns out to be a no-op. UIAppFonts has already registered
-	//     the faces, so `UIFont(name:)` resolves either way.
+	//   - `customFont*FileName` is iDenfy's documented path, and it does work:
+	//     `FontsLoader.preloadFontNames()` (first thing every SDK entry point runs)
+	//     resolves the name against `Bundle.main`, registers the file, and writes
+	//     its real PostScript name back. The HKGrotesk fallback branch never writes
+	//     back, so the SDK cannot clobber us.
+	//   - the `idenfyFont*V2` names cover the case where that lookup misses.
+	//     UIAppFonts has already registered the faces, so `UIFont(name:)` resolves.
 	//
-	// MUST run before any `*UISettingsV2` font property is read: those statics are
-	// lazy and capture the font name on first access.
+	// MUST run before any `*UISettingsV2` font property is read: each one is a
+	// `swift_once` static that resolves `UIFont(name:size:)` on first access and
+	// caches it for the life of the process. One early read freezes the SDK on
+	// HK Grotesk permanently — which is why every entry point calls `apply()`.
 	@MainActor
-	static func applyFonts() {
+	private static func applyFonts() {
 		ConstsIdenfyFonts.customFontBoldFileName = "Gabarito_700Bold.ttf"
 		ConstsIdenfyFonts.customFontSemiBoldFileName = "Gabarito_600SemiBold.ttf"
 		ConstsIdenfyFonts.customFontRegularFileName = "Gabarito_400Regular.ttf"

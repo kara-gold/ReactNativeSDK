@@ -32,11 +32,6 @@ class IdenfyReactNative: NSObject {
             SdkVersionManager.platformWrapper = "reactnative"
             let idenfyController = IdenfyController.shared
             idenfyController.initializeIdenfySDKV2WithManual(idenfySettingsV2: idenfySettingsV2)
-            // The SDK re-registers its own HK Grotesk during init and overwrites
-            // ConstsIdenfyFonts, so the font names have to be restated afterwards.
-            // Still set before init too: the screen settings read them lazily and
-            // nothing guarantees which side runs first.
-            KaraIdenfyTheme.applyFonts()
 
             let idenfyVC = idenfyController.instantiateNavigationController()
             
@@ -68,6 +63,11 @@ class IdenfyReactNative: NSObject {
                                resolver resolve: @escaping RCTPromiseResolveBlock,
                                rejecter reject: @escaping RCTPromiseRejectBlock) {
         do {
+            // Must run here too. Every *UISettingsV2 property is a lazy static that
+            // caches on first read, so a face re-auth started before any other
+            // iDenfy entry point would freeze the whole SDK on its own defaults
+            // for the rest of the process.
+            KaraIdenfyTheme.apply()
             let authToken = GetSdkConfig.getAuthToken(config: config)
             let immediateRedirect = GetSdkConfig.getImmediateRedirectFromConfig(config: config)
             let idenfyFaceAuthUISettings = GetSdkConfig.getFaceAuthSettingsFromConfig(config: config)
@@ -121,11 +121,6 @@ class IdenfyReactNative: NSObject {
             SdkVersionManager.platformWrapper = "reactnative"
             let idenfyController = IdenfyController.shared
             idenfyController.initializeIdenfySDKV2WithManual(idenfySettingsV2: idenfySettingsV2)
-            // The SDK re-registers its own HK Grotesk during init and overwrites
-            // ConstsIdenfyFonts, so the font names have to be restated afterwards.
-            // Still set before init too: the screen settings read them lazily and
-            // nothing guarantees which side runs first.
-            KaraIdenfyTheme.applyFonts()
 
             let idenfyVC = idenfyController.instantiateNavigationController()
 
