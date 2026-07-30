@@ -26,6 +26,10 @@ enum KaraIdenfyTheme {
 	// The app is one background image away from black, so a translucent surface
 	// picks up the gradient underneath instead of flattening it.
 	private static let card = UIColor.white.withAlphaComponent(0.05)
+	// Same tone, but opaque. A card sits inside a page and can afford to let the
+	// background through; a panel that floats over another screen cannot, or the
+	// screen underneath reads straight through it.
+	private static let overlay = karaColor("#1C1C1E")
 	private static let onButton = karaColor("#090710") // dark text on white buttons
 	private static let buttonFill = karaColor("#FAFAFA")
 	private static let secondaryFill = karaColor("#262626") // --secondary, our grey button
@@ -251,7 +255,7 @@ enum KaraIdenfyTheme {
 		IdenfyCommonColors.idenfyDarkRedErrorColorV2 = error
 		// Loading HUD (full-screen spinner overlay): default light container →
 		// dark card with light text.
-		IdenfyLoadingHUDUISettingsV2.idenfyLoadingHUDBackgroundColor = card
+		IdenfyLoadingHUDUISettingsV2.idenfyLoadingHUDBackgroundColor = overlay
 		IdenfyLoadingHUDUISettingsV2.idenfyLoadingHUDTitleColor = text
 		IdenfyLoadingHUDUISettingsV2.idenfyLoadingHUDDescriptionColor = text
 		// Splash spinner inherits idenfyBlackV2 (now light) → white. Gold instead.
