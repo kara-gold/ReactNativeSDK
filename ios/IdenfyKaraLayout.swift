@@ -38,11 +38,13 @@ final class KaraIdenfyLayout: NSObject, UINavigationControllerDelegate {
 		willShow viewController: UIViewController,
 		animated _: Bool
 	) {
-		// Before the transition, so the image is already there when the screen
-		// appears rather than one frame late. Also on the container, so a push
-		// never flashes black between two screens.
+		// Before the transition, so nothing appears one frame late: neither the
+		// background image, nor the toolbar title (the iDenfy logo used to flash in
+		// its place on the way to the language screen). Also on the container, so a
+		// push never shows black between two screens.
 		insertBackground(into: navigationController.view)
 		insertBackground(into: viewController.view)
+		normalize(viewController.view)
 	}
 
 	func navigationController(

@@ -143,15 +143,21 @@ enum KaraIdenfyTheme {
 		IdenfyFaceAuthenticationCommonUISettingsV2.idenfyFaceAuthenticationRetryAlertRetryButtonTextColor = text
 	}
 
-	// Internet connection / stability popups (the slide-in toasts). Default light
-	// containers → dark card with light text.
+	// The connectivity toasts are suppressed: the app has its own
+	// ConnectivityProvider, so iDenfy's slide-in duplicated a message the user
+	// already gets, in a different visual language.
+	//
+	// ponytail: painted out rather than disabled. The SDK exposes no flag and no
+	// view-injection hook for these two, so every colour goes clear and the icon
+	// is overridden with an empty asset. The view still slides in and out, it just
+	// draws nothing.
 	@MainActor
 	private static func applyPopups() {
-		IdenfyInternetConnectionPopupViewUISettingsV2.IdenfyInternetConnectionPopupViewBackgroundColor = card
-		IdenfyInternetConnectionPopupViewUISettingsV2.IdenfyInternetConnectionPopupViewTextViewColor = text
-		IdenfyInternetStabilityPopupViewUISettingsV2.idenfyInternetStabilityPopupViewBackgroundColor = card
-		IdenfyInternetStabilityPopupViewUISettingsV2.idenfyInternetStabilityPopupViewTextViewColor = text
-		IdenfyInternetStabilityPopupViewUISettingsV2.idenfyInternetStabilityPopupViewImageViewTintColor = gold
+		IdenfyInternetConnectionPopupViewUISettingsV2.IdenfyInternetConnectionPopupViewBackgroundColor = .clear
+		IdenfyInternetConnectionPopupViewUISettingsV2.IdenfyInternetConnectionPopupViewTextViewColor = .clear
+		IdenfyInternetStabilityPopupViewUISettingsV2.idenfyInternetStabilityPopupViewBackgroundColor = .clear
+		IdenfyInternetStabilityPopupViewUISettingsV2.idenfyInternetStabilityPopupViewTextViewColor = .clear
+		IdenfyInternetStabilityPopupViewUISettingsV2.idenfyInternetStabilityPopupViewImageViewTintColor = .clear
 	}
 
 	@MainActor
