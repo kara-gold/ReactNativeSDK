@@ -22,6 +22,9 @@ final class KaraIdenfyDocumentOnBoardingView: StaticCameraOnBoardingViewV2 {
 		super.layoutSubviews()
 		guard !installed, bounds.width > 0 else { return }
 		installed = true
+		// The instruction copy comes from the iDenfy dashboard, is far too long for
+		// the space, and repeats what the title already says.
+		idenfyUILabelCameraOnBoardingCommonInformationDescription.text = nil
 		addFileHint()
 	}
 

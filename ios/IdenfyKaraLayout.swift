@@ -141,6 +141,22 @@ final class KaraIdenfyLayout: NSObject, UINavigationControllerDelegate {
 			roundLikeField(in: selection.digitalIdTableView)
 		}
 
+		// The camera toolbar icons ship grey. White, like every other icon we own.
+		if let camera = view as? DocumentCameraViewV2 {
+			for icon in [
+				camera.cameraSessionsButtons.idenfyUploadPhotoButton,
+				camera.cameraSessionsButtons.idenfySwitchLensButton,
+			] {
+				icon.imageView?.image = icon.image(for: .normal)?
+					.withRenderingMode(.alwaysTemplate)
+				icon.setImage(
+					icon.image(for: .normal)?.withRenderingMode(.alwaysTemplate),
+					for: .normal
+				)
+				icon.tintColor = .white
+			}
+		}
+
 		// Every toolbar variant exposes a `logo` image view and no title label.
 		switch view {
 		case let bar as IdenfyToolbarV2WithLanguageSelection: setTitle(on: bar, logo: bar.logo)
