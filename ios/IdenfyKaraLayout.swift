@@ -19,14 +19,19 @@ final class KaraIdenfyLayout: NSObject, UINavigationControllerDelegate {
 	private static let buttonHeight = CGFloat(56)
 	// Below this width a UIButton is an icon or an inline link, not a CTA.
 	private static let ctaMinimumWidth = CGFloat(200)
+	// Room for the back button on one side and the language globe on the other.
+	private static let titleSideInset = CGFloat(56)
 
 	// The SDK's navigation controller only holds a weak delegate reference.
 	static let shared = KaraIdenfyLayout()
 
 	private static let backgroundTag = 0x4B41_5241 // "KARA"
 	private static let titleTag = 0x4B59_4331 // "KYC1"
-	// Identical in the four locales, so it does not go through Idenfy.strings.
-	private static let title = "KYC"
+	// Our own key, in the partial Idenfy.strings tables the app already ships for
+	// the four locales. iDenfy never looks it up.
+	private static var title: String {
+		Bundle.main.localizedString(forKey: "kara_toolbar_title", value: "", table: "Idenfy")
+	}
 
 	func navigationController(
 		_ navigationController: UINavigationController,
@@ -128,17 +133,29 @@ final class KaraIdenfyLayout: NSObject, UINavigationControllerDelegate {
 			return
 		}
 
+		let title = Self.title
+		guard !title.isEmpty, title != "kara_toolbar_title" else { return }
+
+		// Matches the app's Header: `font-semibold text-kara-white text-xl`.
 		let label = UILabel()
 		label.tag = Self.titleTag
-		label.text = Self.title
-		label.font = UIFont(name: ConstsIdenfyFonts.idenfyFontBoldV2, size: 17)
-		label.textColor = IdenfyCommonColors.idenfySecondColorV2
+		label.text = title
+		label.font = UIFont(name: ConstsIdenfyFonts.idenfyFontSemiBoldV2, size: 20)
+		label.textColor = .white
 		label.textAlignment = .center
+		label.numberOfLines = 1
+		// The back and language buttons sit either side; shrink rather than clip
+		// when a locale runs long.
+		label.adjustsFontSizeToFitWidth = true
+		label.minimumScaleFactor = 0.7
 		label.translatesAutoresizingMaskIntoConstraints = false
 		parent.addSubview(label)
 		NSLayoutConstraint.activate([
 			label.centerXAnchor.constraint(equalTo: logo.centerXAnchor),
 			label.centerYAnchor.constraint(equalTo: logo.centerYAnchor),
+			label.widthAnchor.constraint(
+				lessThanOrEqualTo: bar.widthAnchor, constant: -Self.titleSideInset * 2
+			),
 		])
 	}
 

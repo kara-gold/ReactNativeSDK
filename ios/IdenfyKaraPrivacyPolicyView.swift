@@ -15,7 +15,9 @@ import idenfyviews
 //  worst case is that the steps stop looking like cards.
 @MainActor
 final class KaraIdenfyPrivacyPolicyView: PrivacyPolicyViewV2 {
-	private static let cardBackground = UIColor(red: 28 / 255, green: 28 / 255, blue: 30 / 255, alpha: 1)
+	// Same translucent surface as the app's cards (`bg-white/5`).
+	private static let cardBackground = UIColor.white.withAlphaComponent(0.05)
+	private static let cardBorder = UIColor.white.withAlphaComponent(0.1)
 	private static let cardRadius = CGFloat(16)
 	private static let cardSpacing = CGFloat(12)
 	private static let cardInsets = NSDirectionalEdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16)
@@ -65,6 +67,8 @@ final class KaraIdenfyPrivacyPolicyView: PrivacyPolicyViewV2 {
 	private func makeCard(_ view: UIView) {
 		view.backgroundColor = Self.cardBackground
 		view.layer.cornerRadius = Self.cardRadius
+		view.layer.borderWidth = 1
+		view.layer.borderColor = Self.cardBorder.cgColor
 		view.layer.masksToBounds = true
 		// Padding without touching the SDK's constraints: only a stack view can be
 		// inset from the outside. Rows that are not stacks keep their own spacing.

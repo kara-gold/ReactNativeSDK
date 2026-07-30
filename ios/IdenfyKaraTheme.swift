@@ -21,7 +21,10 @@ enum KaraIdenfyTheme {
 	private static let background = karaColor("#090710") // app dark bg override
 	private static let gold = karaColor("#E1BE6B") // --gold (accents, links, selection)
 	private static let text = karaColor("#FAFAFA") // --foreground
-	private static let card = karaColor("#1C1C1E") // --card surfaces
+	// Our cards are `bg-white/5` over a `border-white/10`, not an opaque grey.
+	// The app is one background image away from black, so a translucent surface
+	// picks up the gradient underneath instead of flattening it.
+	private static let card = UIColor.white.withAlphaComponent(0.05)
 	private static let onButton = karaColor("#090710") // dark text on white buttons
 	private static let buttonFill = karaColor("#FAFAFA")
 	private static let secondaryFill = karaColor("#262626") // --secondary, our grey button
@@ -31,9 +34,9 @@ enum KaraIdenfyTheme {
 	private static let info = karaColor("#3B82F6") // --kara-blue
 	// Opacity scale, taken from the app's Button/border classes: white/10 for a
 	// hairline border, white/12 for a disabled fill, white/40 for disabled text.
-	private static let border = karaColor("#FAFAFA").withAlphaComponent(0.12)
-	private static let disabledFill = karaColor("#FAFAFA").withAlphaComponent(0.12)
-	private static let disabledText = karaColor("#FAFAFA").withAlphaComponent(0.4)
+	private static let border = UIColor.white.withAlphaComponent(0.1)
+	private static let disabledFill = UIColor.white.withAlphaComponent(0.12)
+	private static let disabledText = UIColor.white.withAlphaComponent(0.4)
 
 	@MainActor
 	static func apply() {
