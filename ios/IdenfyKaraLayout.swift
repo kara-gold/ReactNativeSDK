@@ -29,11 +29,6 @@ final class KaraIdenfyLayout: NSObject, UINavigationControllerDelegate {
 	// The SDK's navigation controller only holds a weak delegate reference.
 	static let shared = KaraIdenfyLayout()
 
-	// Set by the document onboarding screen's "choose a file" button. The SDK has
-	// no way to start on the picker, so we let it open the camera and press its
-	// own upload button the moment that screen exists.
-	var opensFilePickerOnNextCamera = false
-
 	private static let backgroundTag = 0x4B41_5241 // "KARA"
 	private static let titleTag = 0x4B59_4331 // "KYC1"
 	// Our own key, in the partial Idenfy.strings tables the app already ships for
@@ -64,37 +59,12 @@ final class KaraIdenfyLayout: NSObject, UINavigationControllerDelegate {
 		let root = viewController.view
 		insertBackground(into: root)
 		normalize(root)
-		openFilePickerIfRequested(in: root)
 		// The SDK lays some screens out after the transition completes; a second
 		// pass on the next runloop tick catches those without any observation.
 		DispatchQueue.main.async { [weak root] in
 			guard let root else { return }
 			self.normalize(root)
 		}
-	}
-
-	// Fired from didShow only, and one runloop later, so the camera controller is
-	// actually in the window hierarchy. Pressing the button while it was still
-	// transitioning meant its "photo library or files" sheet had nothing to
-	// present from, and the choice never appeared.
-	private func openFilePickerIfRequested(in view: UIView?) {
-		guard opensFilePickerOnNextCamera, let camera = firstCamera(in: view) else {
-			return
-		}
-		opensFilePickerOnNextCamera = false
-		DispatchQueue.main.async {
-			camera.cameraSessionsButtons.idenfyUploadPhotoButton
-				.sendActions(for: .touchUpInside)
-		}
-	}
-
-	private func firstCamera(in view: UIView?) -> DocumentCameraViewV2? {
-		guard let view else { return nil }
-		if let camera = view as? DocumentCameraViewV2 { return camera }
-		for subview in view.subviews {
-			if let camera = firstCamera(in: subview) { return camera }
-		}
-		return nil
 	}
 
 	// The app paints every screen over assets/backgrounds/general-background.jpg.
