@@ -123,6 +123,7 @@ class GetSdkConfig {
   static func getIdenfyViews() -> IdenfyViewsV2 {
     IdenfyViewsBuilderV2()
       .withPrivacyPolicyView(KaraIdenfyPrivacyPolicyView())
+      .withStaticCameraOnBoardingView(KaraIdenfyDocumentOnBoardingView())
       .build()
   }
 

@@ -27,6 +27,11 @@ final class KaraIdenfyLayout: NSObject, UINavigationControllerDelegate {
 	// The SDK's navigation controller only holds a weak delegate reference.
 	static let shared = KaraIdenfyLayout()
 
+	// Set by the document onboarding screen's "choose a file" button. The SDK has
+	// no way to start on the picker, so we let it open the camera and press its
+	// own upload button the moment that screen exists.
+	var opensFilePickerOnNextCamera = false
+
 	private static let backgroundTag = 0x4B41_5241 // "KARA"
 	private static let titleTag = 0x4B59_4331 // "KYC1"
 	// Our own key, in the partial Idenfy.strings tables the app already ships for
@@ -134,6 +139,12 @@ final class KaraIdenfyLayout: NSObject, UINavigationControllerDelegate {
 			thicken(selection.countrySelectionInputView)
 			pill(in: selection.documentTableView)
 			pill(in: selection.digitalIdTableView)
+		}
+
+		if opensFilePickerOnNextCamera, let camera = view as? DocumentCameraViewV2 {
+			opensFilePickerOnNextCamera = false
+			camera.cameraSessionsButtons.idenfyUploadPhotoButton
+				.sendActions(for: .touchUpInside)
 		}
 
 		// Every toolbar variant exposes a `logo` image view and no title label.
