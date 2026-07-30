@@ -118,6 +118,14 @@ class GetSdkConfig {
     return faceAuthUISettings
   }
   
+  // Screens we replace with a Kara subclass. Everything else stays iDenfy's.
+  @MainActor
+  static func getIdenfyViews() -> IdenfyViewsV2 {
+    IdenfyViewsBuilderV2()
+      .withPrivacyPolicyView(KaraIdenfyPrivacyPolicyView())
+      .build()
+  }
+
   static func getImmediateRedirectFromConfig(config: NSDictionary) -> Bool {
     return config["withImmediateRedirect"] as? Bool == true
   }

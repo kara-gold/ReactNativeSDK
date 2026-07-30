@@ -31,9 +31,13 @@ class IdenfyReactNative: NSObject {
             let idenfySettingsV2 = GetSdkConfig.getIdenfySettingsFromConfig(config: config, authToken: authToken)
             SdkVersionManager.platformWrapper = "reactnative"
             let idenfyController = IdenfyController.shared
-            idenfyController.initializeIdenfySDKV2WithManual(idenfySettingsV2: idenfySettingsV2)
+            idenfyController.initializeIdenfySDKV2WithManual(
+              idenfySettingsV2: idenfySettingsV2,
+              idenfyViewsV2: GetSdkConfig.getIdenfyViews()
+            )
 
             let idenfyVC = idenfyController.instantiateNavigationController()
+            idenfyVC.delegate = KaraIdenfyLayout.shared
             
             idenfyVC.modalPresentationStyle = .fullScreen
             
@@ -77,6 +81,7 @@ class IdenfyReactNative: NSObject {
             idenfyController.initializeFaceAuthentication(faceAuthenticationInitialization: faceReauthenticationInitialization)
             
             let idenfyVC = idenfyController.instantiateNavigationController()
+            idenfyVC.delegate = KaraIdenfyLayout.shared
             
             idenfyVC.modalPresentationStyle = .fullScreen
             
@@ -120,9 +125,13 @@ class IdenfyReactNative: NSObject {
             let idenfySettingsV2 = GetSdkConfig.getIdenfySettingsFromConfig(config: config, authToken: authToken)
             SdkVersionManager.platformWrapper = "reactnative"
             let idenfyController = IdenfyController.shared
-            idenfyController.initializeIdenfySDKV2WithManual(idenfySettingsV2: idenfySettingsV2)
+            idenfyController.initializeIdenfySDKV2WithManual(
+              idenfySettingsV2: idenfySettingsV2,
+              idenfyViewsV2: GetSdkConfig.getIdenfyViews()
+            )
 
             let idenfyVC = idenfyController.instantiateNavigationController()
+            idenfyVC.delegate = KaraIdenfyLayout.shared
 
             idenfyVC.modalPresentationStyle = .fullScreen
 
