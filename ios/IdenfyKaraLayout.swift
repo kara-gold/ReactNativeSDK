@@ -116,8 +116,15 @@ final class KaraIdenfyLayout: NSObject, UINavigationControllerDelegate {
 			scrollView.showsHorizontalScrollIndicator = false
 		}
 
-		if let button = view as? UIButton {
-			resize(button)
+		// ponytail: button resizing is off. Forcing the app's 56pt height on iDenfy's
+		// buttons kept eating their label, through three different attempts. The
+		// stock height is correct; only the alignment is ours. Bisection step, put
+		// back only with a measurement of the button's real state in hand.
+		if let button = view as? UIButton, button.bounds.width >= Self.ctaMinimumWidth,
+			button.title(for: .normal)?.isEmpty == false
+		{
+			button.contentHorizontalAlignment = .center
+			button.titleLabel?.textAlignment = .center
 		}
 
 		// Body copy is capped at a line count and ends in an ellipsis even when the
@@ -209,39 +216,6 @@ final class KaraIdenfyLayout: NSObject, UINavigationControllerDelegate {
 		])
 	}
 
-	// Buttons carry their own height constraint. Editing its constant keeps the
-	// SDK's layout consistent; adding a competing constraint would not.
-	private func resize(_ button: UIButton) {
-		guard
-			button.bounds.width >= Self.ctaMinimumWidth,
-			button.title(for: .normal)?.isEmpty == false
-		else { return }
-
-		button.contentHorizontalAlignment = .center
-		button.titleLabel?.textAlignment = .center
-
-		// `button.constraints` also holds the constraints between the button and its
-		// OWN subviews, so filtering on `.height` alone could resize the titleLabel
-		// instead of the button and wipe the label out. Only a self-sizing
-		// constraint on the button itself qualifies.
-		for constraint in button.constraints where constraint.firstAttribute == .height
-			&& constraint.relation == .equal
-			&& constraint.secondItem == nil
-			&& (constraint.firstItem as? UIView) === button
-		{
-			if constraint.constant != Self.buttonHeight {
-				constraint.constant = Self.buttonHeight
-			}
-		}
-
-		// Derived from the height we just imposed, so it is always an exact pill.
-		// The static `idenfyButtonCorderRadius` cannot be: it is one value for
-		// buttons of several heights, and anything above half the height distorts
-		// the corners.
-		let radius = Self.buttonHeight / 2
-		button.layer.cornerRadius = radius
-
-	}
 
 	// The country field is a plain input the SDK sizes to its content. Give it the
 	// app's control height so it reads as a field rather than a caption, and a
