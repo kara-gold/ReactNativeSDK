@@ -16,11 +16,6 @@ Pod::Spec.new do |s|
 
   s.source_files = "ios/**/*.{h,m,mm,swift}"
 
-  # Kara branding assets bundled into the SDK so the native theme can load them
-  # as UIImage (e.g. the liveness ready-screen logo). Lives in the fork so it
-  # travels with the SDK — no app-side asset-catalog wiring needed.
-  s.resource_bundles = { "KaraIdenfyResources" => ["ios/KaraResources/**/*.png"] }
-
   s.dependency "iDenfySDK-Static/iDenfyLiveness-Static", "9.1.0"
 
   # Use install_modules_dependencies helper for React Native >= 0.71.0

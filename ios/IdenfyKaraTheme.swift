@@ -189,33 +189,18 @@ enum KaraIdenfyTheme {
 		settings.livenessResultScreenForegroundColor = text
 		settings.livenessResultScreenIndicatorColor = gold
 		settings.livenessResultScreenUploadProgressFillColor = gold
-		// Replace the "yourAppLOGO" placeholder on the ready screen with the Kara
-		// wordmark (bundled in the pod's KaraIdenfyResources). No tint → the gold
-		// logo shows in its own colors.
-		if let logo = brandingLogo() {
-			settings.livenessOverlayBrandingImage = logo
-			settings.livenessReadyScreenShowBrandingImage = true
-		}
+		// No logo on the face scan: the screen is a camera and a face, anything else
+		// is noise. This also turns off iDenfy's "yourAppLOGO" placeholder.
+		settings.livenessReadyScreenShowBrandingImage = false
 		return settings
 	}
 
-	@MainActor
-	private static func brandingLogo() -> UIImage? {
-		karaImage("KaraBrandingLogo")
-	}
-
-	// Looks in the pod's resource bundle first, then the host/main bundle —
-	// covers both static and dynamic framework linkage. The logo ships in the
-	// pod; the background ships in the app's asset catalog (config plugin).
+	// Looks in this module's bundle first, then the app's. Our images ship in the
+	// app's asset catalog (config plugin), but linkage decides which bundle a
+	// framework's `Bundle(for:)` resolves to, so both are tried.
 	@MainActor
 	static func karaImage(_ name: String) -> UIImage? {
-		let host = Bundle(for: KaraBundleToken.self)
-		let bundles = [
-			host.url(forResource: "KaraIdenfyResources", withExtension: "bundle")
-				.flatMap(Bundle.init(url:)),
-			host,
-			Bundle.main,
-		].compactMap { $0 }
+		let bundles = [Bundle(for: KaraBundleToken.self), Bundle.main]
 		for bundle in bundles {
 			if let image = UIImage(named: name, in: bundle, compatibleWith: nil) {
 				return image
