@@ -21,6 +21,8 @@ final class KaraIdenfyLayout: NSObject, UINavigationControllerDelegate {
 	private static let ctaMinimumWidth = CGFloat(200)
 	// Room for the back button on one side and the language globe on the other.
 	private static let titleSideInset = CGFloat(56)
+	// The country field: taller than iDenfy's default, so it reads as a control.
+	private static let fieldHeight = CGFloat(64)
 
 	// The SDK's navigation controller only holds a weak delegate reference.
 	static let shared = KaraIdenfyLayout()
@@ -109,6 +111,9 @@ final class KaraIdenfyLayout: NSObject, UINavigationControllerDelegate {
 		if let selection = view as? CountryAndDocumentSelectionView {
 			centerCells(in: selection.documentTableView)
 			centerCells(in: selection.digitalIdTableView)
+			thicken(selection.countrySelectionInputView)
+			pill(in: selection.documentTableView)
+			pill(in: selection.digitalIdTableView)
 		}
 
 		// Every toolbar variant exposes a `logo` image view and no title label.
@@ -188,6 +193,36 @@ final class KaraIdenfyLayout: NSObject, UINavigationControllerDelegate {
 		button.layer.masksToBounds = true
 		for sublayer in button.layer.sublayers ?? [] where sublayer is CAGradientLayer {
 			sublayer.cornerRadius = radius
+		}
+	}
+
+	// The country field is a plain input the SDK sizes to its content. Give it the
+	// app's control height so it reads as a field rather than a caption, and a
+	// radius derived from that height so it stays a pill.
+	private func thicken(_ field: UIView) {
+		for constraint in field.constraints
+		where constraint.firstAttribute == .height && constraint.relation == .equal {
+			constraint.constant = Self.fieldHeight
+		}
+		field.layer.cornerRadius = Self.fieldHeight / 2
+	}
+
+	// Chips get the same treatment as the buttons: a radius derived from their own
+	// height, so "as round as a button" holds whatever the row ends up measuring.
+	// Only layers that are ALREADY rounded are touched, which is how we find the
+	// chip's container without hardcoding a subview index.
+	private func pill(in tableView: UITableView) {
+		for cell in tableView.visibleCells {
+			round(cell.contentView)
+		}
+	}
+
+	private func round(_ view: UIView) {
+		if view.layer.cornerRadius > 0, view.bounds.height > 0 {
+			view.layer.cornerRadius = view.bounds.height / 2
+		}
+		for subview in view.subviews {
+			round(subview)
 		}
 	}
 

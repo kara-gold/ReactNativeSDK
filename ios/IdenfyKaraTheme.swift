@@ -417,12 +417,16 @@ enum KaraIdenfyTheme {
 	private static func applySelectionCards() {
 		IdenfyCountryAndDocumentSelectionViewUISettingsV2.idenfyCountryAndDocumentSelectionViewItemSelectionBackgroundColor = card
 		IdenfyCountryAndDocumentSelectionViewUISettingsV2.idenfyCountryAndDocumentSelectionViewItemSelectionTextColor = text
-		IdenfyCountryAndDocumentSelectionViewUISettingsV2.idenfyCountryAndDocumentSelectionViewItemSelectionBorderWidth = CGFloat(0)
-		IdenfyCountryAndDocumentSelectionViewUISettingsV2.idenfyCountryAndDocumentSelectionViewItemSelectionHighlightedBackgroundColor = gold
+		// Same hairline as the app's cards, on the chips and on the country field.
+		IdenfyCountryAndDocumentSelectionViewUISettingsV2.idenfyCountryAndDocumentSelectionViewItemSelectionBorderWidth = hairline
+		IdenfyCountryAndDocumentSelectionViewUISettingsV2.idenfyCountryAndDocumentSelectionViewItemSelectionBorderColor = border
+		// Selected reads as our primary button: white fill, dark label. Gold stays
+		// for accents, never for a filled surface this large.
+		IdenfyCountryAndDocumentSelectionViewUISettingsV2.idenfyCountryAndDocumentSelectionViewItemSelectionHighlightedBackgroundColor = buttonFill
 		IdenfyCountryAndDocumentSelectionViewUISettingsV2.idenfyCountryAndDocumentSelectionViewItemSelectionHighlightedTextColor = onButton
-		// The selected card draws a separate highlighted border (no width knob for
-		// it) → match it to the gold fill so it blends away. No visible border.
-		IdenfyCountryAndDocumentSelectionViewUISettingsV2.idenfyCountryAndDocumentSelectionViewItemSelectionHighlightedBorderColor = gold
+		// The selected card draws its own border with no width knob, so match it to
+		// the fill and let the shape carry the state.
+		IdenfyCountryAndDocumentSelectionViewUISettingsV2.idenfyCountryAndDocumentSelectionViewItemSelectionHighlightedBorderColor = buttonFill
 	}
 
 	// Full-screen picker lists (language, document country). iDenfy defaults both
