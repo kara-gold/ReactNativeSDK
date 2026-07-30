@@ -35,10 +35,14 @@ final class KaraIdenfyDocumentOnBoardingView: StaticCameraOnBoardingViewV2 {
 		guard currentStep == .UTILITY_BILL || currentStep == .SECOND_UTILITY_BILL else {
 			return
 		}
-		let text = Bundle.main.localizedString(
+		// From React Native first, so the list is correctable over the air; the
+		// bundled table is only the fallback for an older JS bundle.
+		let fallback = Bundle.main.localizedString(
 			forKey: "kara_poa_instructions", value: "", table: "Idenfy"
 		)
-		guard !text.isEmpty, text != "kara_poa_instructions" else { return }
+		let text = KaraIdenfyCopy.proofOfAddressInstructions
+			?? (fallback == "kara_poa_instructions" ? "" : fallback)
+		guard !text.isEmpty else { return }
 
 		let label = idenfyUILabelCameraOnBoardingCommonInformationDescription
 		label.text = text

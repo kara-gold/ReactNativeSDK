@@ -56,6 +56,7 @@ class IdenfyReactNative: RCTEventEmitter {
                      rejecter reject: @escaping RCTPromiseRejectBlock) {
         do {
             KaraIdenfyTheme.apply()
+            KaraIdenfyCopy.read(from: config)
             let authToken = GetSdkConfig.getAuthToken(config: config)
             let idenfySettingsV2 = GetSdkConfig.getIdenfySettingsFromConfig(config: config, authToken: authToken)
             SdkVersionManager.platformWrapper = "reactnative"
@@ -107,6 +108,7 @@ class IdenfyReactNative: RCTEventEmitter {
             // iDenfy entry point would freeze the whole SDK on its own defaults
             // for the rest of the process.
             KaraIdenfyTheme.apply()
+            KaraIdenfyCopy.read(from: config)
             let authToken = GetSdkConfig.getAuthToken(config: config)
             let immediateRedirect = GetSdkConfig.getImmediateRedirectFromConfig(config: config)
             let idenfyFaceAuthUISettings = GetSdkConfig.getFaceAuthSettingsFromConfig(config: config)
@@ -156,6 +158,7 @@ class IdenfyReactNative: RCTEventEmitter {
                                              rejecter reject: @escaping RCTPromiseRejectBlock) {
         do {
             KaraIdenfyTheme.apply()
+            KaraIdenfyCopy.read(from: config)
             let authToken = GetSdkConfig.getAuthToken(config: config)
             let idenfySettingsV2 = GetSdkConfig.getIdenfySettingsFromConfig(config: config, authToken: authToken)
             SdkVersionManager.platformWrapper = "reactnative"
