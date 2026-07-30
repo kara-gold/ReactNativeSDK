@@ -241,14 +241,6 @@ final class KaraIdenfyLayout: NSObject, UINavigationControllerDelegate {
 		let radius = Self.buttonHeight / 2
 		button.layer.cornerRadius = radius
 
-		// The white fill of the primary buttons is a gradient sublayer whose frame
-		// is fixed at layout time. Growing the button left it covering only part of
-		// the surface, so the button's own dark background showed through and its
-		// dark label became invisible on it. Resize the sublayer with the button.
-		for sublayer in button.layer.sublayers ?? [] where sublayer is CAGradientLayer {
-			sublayer.frame = button.bounds
-			sublayer.cornerRadius = radius
-		}
 	}
 
 	// The country field is a plain input the SDK sizes to its content. Give it the
