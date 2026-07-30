@@ -4,6 +4,10 @@ import idenfycore
 import UIKit
 @objc(IdenfyReactNative)
 class IdenfyReactNative: NSObject {
+
+    // Held strongly: IdenfyController does not retain the handlers, and a
+    // deallocated trace silently stops recording mid-flow.
+    private var trace: KaraIdenfyTrace?
     
     @objc(start:withResolver:withRejecter:)
     func start(_ config: NSDictionary,
@@ -31,6 +35,10 @@ class IdenfyReactNative: NSObject {
             let idenfySettingsV2 = GetSdkConfig.getIdenfySettingsFromConfig(config: config, authToken: authToken)
             SdkVersionManager.platformWrapper = "reactnative"
             let idenfyController = IdenfyController.shared
+            let trace = KaraIdenfyTrace()
+            self.trace = trace
+            idenfyController.setIdenfyLoggingHandler(idenfyLoggingHandler: trace)
+            idenfyController.setIdenfyUserFlowCallbacksHandler(idenfyUserFlowHandler: trace)
             idenfyController.initializeIdenfySDKV2WithManual(
               idenfySettingsV2: idenfySettingsV2,
               idenfyViewsV2: GetSdkConfig.getIdenfyViews()
@@ -56,9 +64,10 @@ class IdenfyReactNative: NSObject {
     
     private func handleSdkCallbacks(idenfyController: IdenfyController, resolver resolve: @escaping RCTPromiseResolveBlock) {
         idenfyController.handleIdenfyCallbacksWithManualResults(idenfyIdentificationResult: {
-            idenfyIdentificationResult
+            [weak self] idenfyIdentificationResult
             in
-            let response = NativeResponseToReactNativeResponseMapper.map(o: idenfyIdentificationResult)
+            var response = NativeResponseToReactNativeResponseMapper.map(o: idenfyIdentificationResult)
+            response["karaTrace"] = self?.trace?.dump() ?? ""
             resolve(response)
         })
     }
