@@ -218,8 +218,15 @@ final class KaraIdenfyLayout: NSObject, UINavigationControllerDelegate {
 		button.contentHorizontalAlignment = .center
 		button.titleLabel?.textAlignment = .center
 
-		for constraint in button.constraints
-		where constraint.firstAttribute == .height && constraint.relation == .equal {
+		// `button.constraints` also holds the constraints between the button and its
+		// OWN subviews, so filtering on `.height` alone could resize the titleLabel
+		// instead of the button and wipe the label out. Only a self-sizing
+		// constraint on the button itself qualifies.
+		for constraint in button.constraints where constraint.firstAttribute == .height
+			&& constraint.relation == .equal
+			&& constraint.secondItem == nil
+			&& (constraint.firstItem as? UIView) === button
+		{
 			if constraint.constant != Self.buttonHeight {
 				constraint.constant = Self.buttonHeight
 			}
@@ -247,8 +254,11 @@ final class KaraIdenfyLayout: NSObject, UINavigationControllerDelegate {
 	// radius derived from that height so it stays a pill.
 	private func resizeField(_ field: UIView, matching chip: CGFloat?) {
 		let height = chip ?? Self.fieldHeight
-		for constraint in field.constraints
-		where constraint.firstAttribute == .height && constraint.relation == .equal {
+		for constraint in field.constraints where constraint.firstAttribute == .height
+			&& constraint.relation == .equal
+			&& constraint.secondItem == nil
+			&& (constraint.firstItem as? UIView) === field
+		{
 			constraint.constant = height
 		}
 		field.layer.cornerRadius = Self.fieldRadius
