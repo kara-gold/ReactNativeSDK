@@ -64,12 +64,37 @@ final class KaraIdenfyLayout: NSObject, UINavigationControllerDelegate {
 		let root = viewController.view
 		insertBackground(into: root)
 		normalize(root)
+		openFilePickerIfRequested(in: root)
 		// The SDK lays some screens out after the transition completes; a second
 		// pass on the next runloop tick catches those without any observation.
 		DispatchQueue.main.async { [weak root] in
 			guard let root else { return }
 			self.normalize(root)
 		}
+	}
+
+	// Fired from didShow only, and one runloop later, so the camera controller is
+	// actually in the window hierarchy. Pressing the button while it was still
+	// transitioning meant its "photo library or files" sheet had nothing to
+	// present from, and the choice never appeared.
+	private func openFilePickerIfRequested(in view: UIView?) {
+		guard opensFilePickerOnNextCamera, let camera = firstCamera(in: view) else {
+			return
+		}
+		opensFilePickerOnNextCamera = false
+		DispatchQueue.main.async {
+			camera.cameraSessionsButtons.idenfyUploadPhotoButton
+				.sendActions(for: .touchUpInside)
+		}
+	}
+
+	private func firstCamera(in view: UIView?) -> DocumentCameraViewV2? {
+		guard let view else { return nil }
+		if let camera = view as? DocumentCameraViewV2 { return camera }
+		for subview in view.subviews {
+			if let camera = firstCamera(in: subview) { return camera }
+		}
+		return nil
 	}
 
 	// The app paints every screen over assets/backgrounds/general-background.jpg.
@@ -144,12 +169,6 @@ final class KaraIdenfyLayout: NSObject, UINavigationControllerDelegate {
 			)
 			roundLikeField(in: selection.documentTableView)
 			roundLikeField(in: selection.digitalIdTableView)
-		}
-
-		if opensFilePickerOnNextCamera, let camera = view as? DocumentCameraViewV2 {
-			opensFilePickerOnNextCamera = false
-			camera.cameraSessionsButtons.idenfyUploadPhotoButton
-				.sendActions(for: .touchUpInside)
 		}
 
 		// Every toolbar variant exposes a `logo` image view and no title label.
