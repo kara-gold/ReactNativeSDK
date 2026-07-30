@@ -21,8 +21,9 @@ final class KaraIdenfyLayout: NSObject, UINavigationControllerDelegate {
 	private static let ctaMinimumWidth = CGFloat(200)
 	// Room for the back button on one side and the language globe on the other.
 	private static let titleSideInset = CGFloat(56)
-	// The country field: taller than iDenfy's default, so it reads as a control.
-	private static let fieldHeight = CGFloat(64)
+	// The app's text input: `h-10 rounded-md` in components/ui/input.tsx.
+	private static let fieldHeight = CGFloat(40)
+	private static let fieldRadius = CGFloat(8)
 
 	// The SDK's navigation controller only holds a weak delegate reference.
 	static let shared = KaraIdenfyLayout()
@@ -136,9 +137,9 @@ final class KaraIdenfyLayout: NSObject, UINavigationControllerDelegate {
 		if let selection = view as? CountryAndDocumentSelectionView {
 			centerCells(in: selection.documentTableView)
 			centerCells(in: selection.digitalIdTableView)
-			thicken(selection.countrySelectionInputView)
-			pill(in: selection.documentTableView)
-			pill(in: selection.digitalIdTableView)
+			resizeField(selection.countrySelectionInputView)
+			roundLikeField(in: selection.documentTableView)
+			roundLikeField(in: selection.digitalIdTableView)
 		}
 
 		if opensFilePickerOnNextCamera, let camera = view as? DocumentCameraViewV2 {
@@ -218,11 +219,16 @@ final class KaraIdenfyLayout: NSObject, UINavigationControllerDelegate {
 		// Derived from the height we just imposed, so it is always an exact pill.
 		// The static `idenfyButtonCorderRadius` cannot be: it is one value for
 		// buttons of several heights, and anything above half the height distorts
-		// the corners. Sublayers carry the gradient fill and need it too.
+		// the corners.
 		let radius = Self.buttonHeight / 2
 		button.layer.cornerRadius = radius
-		button.layer.masksToBounds = true
+
+		// The white fill of the primary buttons is a gradient sublayer whose frame
+		// is fixed at layout time. Growing the button left it covering only part of
+		// the surface, so the button's own dark background showed through and its
+		// dark label became invisible on it. Resize the sublayer with the button.
 		for sublayer in button.layer.sublayers ?? [] where sublayer is CAGradientLayer {
+			sublayer.frame = button.bounds
 			sublayer.cornerRadius = radius
 		}
 	}
@@ -230,27 +236,26 @@ final class KaraIdenfyLayout: NSObject, UINavigationControllerDelegate {
 	// The country field is a plain input the SDK sizes to its content. Give it the
 	// app's control height so it reads as a field rather than a caption, and a
 	// radius derived from that height so it stays a pill.
-	private func thicken(_ field: UIView) {
+	private func resizeField(_ field: UIView) {
 		for constraint in field.constraints
 		where constraint.firstAttribute == .height && constraint.relation == .equal {
 			constraint.constant = Self.fieldHeight
 		}
-		field.layer.cornerRadius = Self.fieldHeight / 2
+		field.layer.cornerRadius = Self.fieldRadius
 	}
 
-	// Chips get the same treatment as the buttons: a radius derived from their own
-	// height, so "as round as a button" holds whatever the row ends up measuring.
-	// Only layers that are ALREADY rounded are touched, which is how we find the
-	// chip's container without hardcoding a subview index.
-	private func pill(in tableView: UITableView) {
+	// The chips are selectors, not buttons, so they follow the app's text input
+	// radius. Only layers that are ALREADY rounded are touched, which is how the
+	// chip container is found without hardcoding a subview index.
+	private func roundLikeField(in tableView: UITableView) {
 		for cell in tableView.visibleCells {
 			round(cell.contentView)
 		}
 	}
 
 	private func round(_ view: UIView) {
-		if view.layer.cornerRadius > 0, view.bounds.height > 0 {
-			view.layer.cornerRadius = view.bounds.height / 2
+		if view.layer.cornerRadius > 0 {
+			view.layer.cornerRadius = Self.fieldRadius
 		}
 		for subview in view.subviews {
 			round(subview)

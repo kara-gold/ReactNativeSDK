@@ -96,6 +96,7 @@ enum KaraIdenfyTheme {
 	// half the height distorts the corners, and the SDK exposes no height hook.
 	private static let pill = CGFloat(22)
 	private static let cardRadius = CGFloat(16)
+	private static let fieldRadius = CGFloat(8) // `rounded-md`, our text inputs
 	private static let hairline = CGFloat(1) // the app's `border`, not iDenfy's 2pt
 	private static let rowHeight = CGFloat(56) // matches the `large` button height
 
@@ -111,11 +112,11 @@ enum KaraIdenfyTheme {
 		IdenfyInstructionAlertUISettigsV2.idenfyInstructionAlertDetailsCardCornerRadius = cardRadius
 		IdenfyLoadingHUDUISettingsV2.idenfyLoadingHUDCornerRadius = cardRadius
 
-		// The "Méthode de vérification" chips and the country field are ~45pt tall
-		// controls, same as a button — pill, not card radius.
-		IdenfyCountryAndDocumentSelectionViewUISettingsV2.idenfyCountryAndDocumentSelectionViewItemSelectionCornerRadius = pill
-		IdenfyIssuedCountryViewUISettingsV2.idenfyIssuedCountryViewCountryViewCorderRadius = pill
-		IdenfyCountrySelectionViewUISettingsV2.idenfyCountrySelectionViewCountrySearchBarCorderRadius = pill
+		// The country field, the document chips and the country search are text
+		// inputs, not buttons: they follow `rounded-md` from components/ui/input.tsx.
+		IdenfyCountryAndDocumentSelectionViewUISettingsV2.idenfyCountryAndDocumentSelectionViewItemSelectionCornerRadius = fieldRadius
+		IdenfyIssuedCountryViewUISettingsV2.idenfyIssuedCountryViewCountryViewCorderRadius = fieldRadius
+		IdenfyCountrySelectionViewUISettingsV2.idenfyCountrySelectionViewCountrySearchBarCorderRadius = fieldRadius
 
 		// List panels stay on the card radius — they are tall surfaces.
 		IdenfyDocumentSelectionViewUISettingsV2.idenfyDocumentSelectionViewDocumentTableViewCornerRadius = cardRadius
