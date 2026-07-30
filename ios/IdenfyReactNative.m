@@ -1,6 +1,7 @@
 #import <React/RCTBridgeModule.h>
+#import <React/RCTEventEmitter.h>
 
-@interface RCT_EXTERN_MODULE(IdenfyReactNative, NSObject)
+@interface RCT_EXTERN_MODULE(IdenfyReactNative, RCTEventEmitter)
 
 RCT_EXTERN_METHOD(
     start:(NSDictionary *)config
@@ -22,7 +23,7 @@ RCT_EXTERN_METHOD(
 
 + (BOOL)requiresMainQueueSetup
 {
-  return NO;
+  return YES;
 }
 
 @end

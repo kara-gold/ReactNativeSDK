@@ -5,31 +5,38 @@ import iDenfySDK
 ///
 /// The RN wrapper only ever surfaces the terminal result, so everything between
 /// "SDK opened" and "SDK closed" is a black box — the same blind spot the hosted
-/// WebView had. iDenfy exposes two native hooks for this and neither is bridged:
+/// WebView had, and the reason we cannot tell where users abandon. iDenfy exposes
+/// two native hooks for this and neither is bridged:
 ///
-///  - `IdenfyLoggingHandlerUseCase` — the firehose. Crosses ~36 screen tags
-///    (SPLASHSCREEN, COUNTRYSELECTION, DOCUMENTSELECTION, ONBOARDING,
-///    CAMERASESSION, UPLOADSESSION, LEAVINGSDK, ERROREVENT…) with ~12 interactions
-///    (STEP_VIEW, CONTINUE_CLICK, BACK_CLICK, CAPTURE_CLICK, RETAKE_CLICK…).
-///    Those values are NOT documented; they were read out of the Android AAR and
-///    may change between SDK versions — never type them strictly on the JS side.
+///  - `IdenfyLoggingHandlerUseCase` — the firehose. Screen tags (SplashScreen,
+///    CountryAndDocumentSelection, OnBoarding, CameraSession, UploadSession,
+///    LeavingSDK, ErrorEvent, NetworkRequest…) crossed with interactions
+///    (viewDidLoad, continueButtonPressed, takePhotoPressed, backButtonAction…).
+///    These strings are NOT documented and differ between platforms and SDK
+///    versions — send them raw and group them at analysis time, never type them.
 ///  - `IdenfyUserFlowHandler` — the semantic events (document/country chosen,
 ///    photo uploaded per step, processing started).
 ///
-/// Entries are accumulated and returned with the promise rather than streamed:
-/// turning this module into an RCTEventEmitter would mean touching the ObjC
-/// bridge header and the New Architecture codegen, for no gain — the flow is
-/// short and the full sequence at close is what we actually want to read.
+/// Entries are emitted live via `onEvent` AND accumulated. The live channel is
+/// what survives a mid-flow app kill (the promise never resolves then, so the
+/// batch would be lost with the process); the accumulated copy still rides back
+/// on the promise so a listener that failed to attach costs nothing.
 @objc final class KaraIdenfyTrace: NSObject, IdenfyLoggingHandlerUseCase,
 	IdenfyUserFlowHandler
 {
+	/// Called on every entry, on the main queue. Set by the bridge module.
+	var onEvent: ((String) -> Void)?
+
 	private var entries: [String] = []
 	private let lock = NSLock()
 
 	private func append(_ line: String) {
 		lock.lock()
-		defer { lock.unlock() }
 		entries.append(line)
+		lock.unlock()
+		// iDenfy calls these from its own queues; RCTEventEmitter is not
+		// thread-safe, so hop to main before crossing the bridge.
+		DispatchQueue.main.async { [onEvent] in onEvent?(line) }
 	}
 
 	/// Newline-joined so it fits `RNResponse` ([String: String]) untouched.

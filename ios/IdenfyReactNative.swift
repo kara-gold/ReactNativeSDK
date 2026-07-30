@@ -3,11 +3,36 @@ import iDenfySDK
 import idenfycore
 import UIKit
 @objc(IdenfyReactNative)
-class IdenfyReactNative: NSObject {
+class IdenfyReactNative: RCTEventEmitter {
 
     // Held strongly: IdenfyController does not retain the handlers, and a
     // deallocated trace silently stops recording mid-flow.
     private var trace: KaraIdenfyTrace?
+
+    private static let traceEvent = "onIdenfyEvent"
+    private var hasListeners = false
+    // The first entries (SplashScreen|ViewDidLoad) fire microseconds after
+    // start(); if JS has not finished subscribing yet, RN drops them silently.
+    // Buffer until startObserving(), then replay in order.
+    private var pending: [String] = []
+
+    override func supportedEvents() -> [String]! { [Self.traceEvent] }
+
+    override func startObserving() {
+        hasListeners = true
+        for line in pending { sendEvent(withName: Self.traceEvent, body: line) }
+        pending.removeAll()
+    }
+
+    override func stopObserving() { hasListeners = false }
+
+    private func emit(_ line: String) {
+        guard hasListeners else {
+            pending.append(line)
+            return
+        }
+        sendEvent(withName: Self.traceEvent, body: line)
+    }
     
     @objc(start:withResolver:withRejecter:)
     func start(_ config: NSDictionary,
@@ -36,6 +61,7 @@ class IdenfyReactNative: NSObject {
             SdkVersionManager.platformWrapper = "reactnative"
             let idenfyController = IdenfyController.shared
             let trace = KaraIdenfyTrace()
+            trace.onEvent = { [weak self] line in self?.emit(line) }
             self.trace = trace
             idenfyController.setIdenfyLoggingHandler(idenfyLoggingHandler: trace)
             idenfyController.setIdenfyUserFlowCallbacksHandler(idenfyUserFlowHandler: trace)
