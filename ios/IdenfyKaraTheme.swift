@@ -194,7 +194,7 @@ enum KaraIdenfyTheme {
 	// covers both static and dynamic framework linkage. The logo ships in the
 	// pod; the background ships in the app's asset catalog (config plugin).
 	@MainActor
-	private static func karaImage(_ name: String) -> UIImage? {
+	static func karaImage(_ name: String) -> UIImage? {
 		let host = Bundle(for: KaraBundleToken.self)
 		let bundles = [
 			host.url(forResource: "KaraIdenfyResources", withExtension: "bundle")
@@ -210,39 +210,13 @@ enum KaraIdenfyTheme {
 		return nil
 	}
 
-	// The app paints every screen over assets/backgrounds/general-background.jpg.
-	// iDenfy only ever takes a UIColor, so hand it a pattern colour: the image
-	// aspect-filled into a screen-wide bitmap, which then paints 1:1 on any
-	// full-screen view (a pattern is anchored to the view's own origin).
-	//
-	// ponytail: the canvas is two screens tall with the image's black bottom
-	// extended below it, so scrolling content up to that height never reaches the
-	// tile seam. Taller content would repeat the glow — raise the multiplier then.
-	// Falls back to the flat colour if the asset is missing.
-	@MainActor
-	private static func backgroundFill() -> UIColor {
-		guard let image = karaImage("KaraIdenfyBackground") else { return background }
-		let screen = UIScreen.main.bounds.size
-		let canvas = CGSize(width: screen.width, height: screen.height * 2)
-		let tile = UIGraphicsImageRenderer(size: canvas).image { context in
-			background.setFill()
-			context.fill(CGRect(origin: .zero, size: canvas))
-			let ratio = max(screen.width / image.size.width, screen.height / image.size.height)
-			let drawn = CGSize(width: image.size.width * ratio, height: image.size.height * ratio)
-			image.draw(in: CGRect(
-				x: (screen.width - drawn.width) / 2,
-				y: 0,
-				width: drawn.width,
-				height: drawn.height
-			))
-		}
-		return UIColor(patternImage: tile)
-	}
-
 	// Master palette — cascades to all screens. High confidence: documented names.
 	@MainActor
 	private static func applyMasterColors() {
-		IdenfyCommonColors.idenfyBackgroundColorV2 = backgroundFill()
+		// Transparent: KaraIdenfyLayout slides the app's background image behind
+		// every screen, and an opaque screen colour would hide it. `background`
+		// stays the flat fallback for surfaces that must not be see-through.
+		IdenfyCommonColors.idenfyBackgroundColorV2 = .clear
 		IdenfyCommonColors.idenfyMainColorV2 = gold
 		IdenfyCommonColors.idenfyMainDarkerColorV2 = gold
 		IdenfyCommonColors.idenfySecondColorV2 = text
@@ -275,11 +249,9 @@ enum KaraIdenfyTheme {
 
 	@MainActor
 	private static func applyToolbar() {
-		// Reuses the pattern already built in applyMasterColors (runs first), so the
-		// toolbar continues the image instead of banding against it. Its pattern
-		// phase starts at its own origin, ~47pt lower than the screen's, which is
-		// imperceptible on a gradient this smooth.
-		IdenfyToolbarUISettingsV2.idenfyDefaultToolbarBackgroundColor = IdenfyCommonColors.idenfyBackgroundColorV2
+		// Transparent so the background image inserted by KaraIdenfyLayout shows
+		// through, instead of banding against it.
+		IdenfyToolbarUISettingsV2.idenfyDefaultToolbarBackgroundColor = .clear
 		// The default toolbar draws a black drop shadow, which reads as a darker
 		// band separating the header from the page. Our headers have no shadow.
 		IdenfyToolbarUISettingsV2.idenfyDefaultToolbarShadowOpacity = 0

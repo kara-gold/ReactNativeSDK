@@ -23,12 +23,27 @@ final class KaraIdenfyLayout: NSObject, UINavigationControllerDelegate {
 	// The SDK's navigation controller only holds a weak delegate reference.
 	static let shared = KaraIdenfyLayout()
 
+	private static let backgroundTag = 0x4B41_5241 // "KARA"
+
+	func navigationController(
+		_ navigationController: UINavigationController,
+		willShow viewController: UIViewController,
+		animated _: Bool
+	) {
+		// Before the transition, so the image is already there when the screen
+		// appears rather than one frame late. Also on the container, so a push
+		// never flashes black between two screens.
+		insertBackground(into: navigationController.view)
+		insertBackground(into: viewController.view)
+	}
+
 	func navigationController(
 		_: UINavigationController,
 		didShow viewController: UIViewController,
 		animated _: Bool
 	) {
 		let root = viewController.view
+		insertBackground(into: root)
 		normalize(root)
 		// The SDK lays some screens out after the transition completes; a second
 		// pass on the next runloop tick catches those without any observation.
@@ -36,6 +51,34 @@ final class KaraIdenfyLayout: NSObject, UINavigationControllerDelegate {
 			guard let root else { return }
 			self.normalize(root)
 		}
+	}
+
+	// The app paints every screen over assets/backgrounds/general-background.jpg.
+	// A real image view, not a UIColor(patternImage:): the SDK deep-copies any
+	// injected view through NSKeyedArchiver, and a pattern colour is not
+	// encodable, so it aborted the process the moment a custom view was wired in
+	// (crash 2026-07-30, -[UIColor encodeWithCoder:] under archivedDataWithRootObject:).
+	// An image view is also a better fit anyway: real aspect-fill, no tiling seam
+	// and no pattern-phase offset under the toolbar.
+	private func insertBackground(into view: UIView?) {
+		guard
+			let view,
+			view.viewWithTag(Self.backgroundTag) == nil,
+			let image = KaraIdenfyTheme.karaImage("KaraIdenfyBackground")
+		else { return }
+
+		let backdrop = UIImageView(image: image)
+		backdrop.tag = Self.backgroundTag
+		backdrop.contentMode = .scaleAspectFill
+		backdrop.clipsToBounds = true
+		backdrop.translatesAutoresizingMaskIntoConstraints = false
+		view.insertSubview(backdrop, at: 0)
+		NSLayoutConstraint.activate([
+			backdrop.topAnchor.constraint(equalTo: view.topAnchor),
+			backdrop.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+			backdrop.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+			backdrop.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+		])
 	}
 
 	private func normalize(_ view: UIView?) {
