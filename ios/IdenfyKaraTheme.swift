@@ -18,7 +18,8 @@ import idenfyviews
 
 enum KaraIdenfyTheme {
 	// Palette — mirrors apps/native/global.css (.dark), background per request.
-	private static let background = karaColor("#090710") // app dark bg override
+	// Internal: KaraIdenfyLayout matches views painted with it (see there).
+	static let background = karaColor("#090710") // app dark bg override
 	private static let gold = karaColor("#E1BE6B") // --gold (accents, links, selection)
 	private static let text = karaColor("#FAFAFA") // --foreground
 	// Our cards are `bg-white/5` over a `border-white/10`, not an opaque grey.
@@ -222,10 +223,11 @@ enum KaraIdenfyTheme {
 	// Master palette — cascades to all screens. High confidence: documented names.
 	@MainActor
 	private static func applyMasterColors() {
-		// Transparent: KaraIdenfyLayout slides the app's background image behind
-		// every screen, and an opaque screen colour would hide it. `background`
-		// stays the flat fallback for surfaces that must not be see-through.
-		IdenfyCommonColors.idenfyBackgroundColorV2 = .clear
+		// Opaque. KaraIdenfyLayout swaps this exact colour for the app's background
+		// image, screen by screen, and only clears a view once the image is behind
+		// it. Making the token itself transparent leaked the live camera through
+		// the photo-result screen, which the delegate never gets a callback for.
+		IdenfyCommonColors.idenfyBackgroundColorV2 = background
 		IdenfyCommonColors.idenfyMainColorV2 = gold
 		IdenfyCommonColors.idenfyMainDarkerColorV2 = gold
 		IdenfyCommonColors.idenfySecondColorV2 = text

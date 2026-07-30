@@ -79,6 +79,12 @@ final class KaraIdenfyLayout: NSObject, UINavigationControllerDelegate {
 			let image = KaraIdenfyTheme.karaImage("KaraIdenfyBackground")
 		else { return }
 
+		// The view stops painting its own colour only now that the image is behind
+		// it. Transparency is never granted up front: the photo-result screen gets
+		// no navigation callback, so a globally clear token showed the live camera
+		// straight through it.
+		view.backgroundColor = .clear
+
 		let backdrop = UIImageView(image: image)
 		backdrop.tag = Self.backgroundTag
 		backdrop.contentMode = .scaleAspectFill
@@ -95,6 +101,13 @@ final class KaraIdenfyLayout: NSObject, UINavigationControllerDelegate {
 
 	private func normalize(_ view: UIView?) {
 		guard let view else { return }
+
+		// Any surface the theme painted with the background token becomes the app's
+		// background image. Matching on the colour rather than on a view class
+		// reaches every screen, including the ones we never get a callback for.
+		if view.backgroundColor == KaraIdenfyTheme.background {
+			insertBackground(into: view)
+		}
 
 		if let scrollView = view as? UIScrollView {
 			scrollView.showsVerticalScrollIndicator = false
