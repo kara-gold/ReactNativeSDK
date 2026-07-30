@@ -118,6 +118,13 @@ final class KaraIdenfyLayout: NSObject, UINavigationControllerDelegate {
 			resize(button)
 		}
 
+		// Body copy is capped at a line count and ends in an ellipsis even when the
+		// screen is mostly empty. Only multi-line labels are freed: the single-line
+		// ones are list rows and field values, which are meant to truncate.
+		if let label = view as? UILabel, label.numberOfLines > 1 {
+			label.numberOfLines = 0
+		}
+
 		// Typed pass. `CountryAndDocumentSelectionView` exposes its subviews, so
 		// the document chips can be centred without guessing which table it is:
 		// the country picker's rows must stay left-aligned behind their flag.
