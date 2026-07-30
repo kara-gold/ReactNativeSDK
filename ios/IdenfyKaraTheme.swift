@@ -265,6 +265,10 @@ enum KaraIdenfyTheme {
 		IdenfyToolbarUISettingsV2.idenfyDefaultToolbarBackIconTintColor = text
 		IdenfyToolbarUISettingsV2.idenfyCameraPreviewSessionToolbarBackIconTintColor = text
 		IdenfyToolbarUISettingsV2.idenfyLanguageSelectionToolbarCloseIconTintColor = text
+		// The language globe defaulted to the main colour, so it was the one gold
+		// icon among white ones.
+		IdenfyToolbarUISettingsV2.idenfyLanguageSelectionToolbarLanguageSelectionIconTintColor = text
+		IdenfyToolbarUISettingsV2.idenfyFaceAuthToolbarLanguageSelectionIconTintColor = text
 		// The toolbar has no title-text property: its centre is an image view. The
 		// app ships a "KYC" wordmark under iDenfy's own asset name, and this tint
 		// colours it — so the shape comes from the asset, the colour stays here.
