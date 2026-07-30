@@ -35,8 +35,8 @@ final class KaraIdenfyPrivacyPolicyView: PrivacyPolicyViewV2 {
 
 		// Only the steps remain. The data-protection and compliance copy moves to
 		// the app's own KYC intro screen.
-		dataProtectionStackView.isHidden = true
-		complianceStackView.isHidden = true
+		collapse(dataProtectionStackView)
+		collapse(complianceStackView)
 
 		// De-accordion the remaining section: no header, always expanded.
 		processHeaderView.isHidden = true
@@ -48,6 +48,18 @@ final class KaraIdenfyPrivacyPolicyView: PrivacyPolicyViewV2 {
 		for step in processContentView.arrangedSubviews {
 			makeCard(step)
 		}
+	}
+
+	// The sections are chained to each other inside `contentView`, not arranged in
+	// a parent stack, so `isHidden` on the section alone leaves its height behind
+	// as a hole. Hiding the ARRANGED subviews collapses the stack's intrinsic
+	// height to zero, which the chain then absorbs.
+	private func collapse(_ section: UIStackView) {
+		for child in section.arrangedSubviews {
+			child.isHidden = true
+		}
+		section.spacing = 0
+		section.isHidden = true
 	}
 
 	private func makeCard(_ view: UIView) {

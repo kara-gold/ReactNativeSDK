@@ -24,6 +24,9 @@ final class KaraIdenfyLayout: NSObject, UINavigationControllerDelegate {
 	static let shared = KaraIdenfyLayout()
 
 	private static let backgroundTag = 0x4B41_5241 // "KARA"
+	private static let titleTag = 0x4B59_4331 // "KYC1"
+	// Identical in the four locales, so it does not go through Idenfy.strings.
+	private static let title = "KYC"
 
 	func navigationController(
 		_ navigationController: UINavigationController,
@@ -101,9 +104,42 @@ final class KaraIdenfyLayout: NSObject, UINavigationControllerDelegate {
 			centerCells(in: selection.digitalIdTableView)
 		}
 
+		// Every toolbar variant exposes a `logo` image view and no title label.
+		switch view {
+		case let bar as IdenfyToolbarV2WithLanguageSelection: setTitle(on: bar, logo: bar.logo)
+		case let bar as IdenfyToolbarV2Default: setTitle(on: bar, logo: bar.logo)
+		case let bar as IdenfyToolbarV2CloseButton: setTitle(on: bar, logo: bar.logo)
+		case let bar as IdenfyCameraOnBoardingToolbarV2: setTitle(on: bar, logo: bar.logo)
+		case let bar as IdenfyToolbarV2Questionnaire: setTitle(on: bar, logo: bar.logo)
+		default: break
+		}
+
 		for subview in view.subviews {
 			normalize(subview)
 		}
+	}
+
+	// The toolbar centre is an image view, so the SDK offers no way to put a word
+	// there. Hide it and drop a real label on its centre: actual text in the app's
+	// font, not a picture of text, so it scales and stays crisp.
+	private func setTitle(on bar: UIView, logo: UIImageView) {
+		logo.isHidden = true
+		guard bar.viewWithTag(Self.titleTag) == nil, let parent = logo.superview else {
+			return
+		}
+
+		let label = UILabel()
+		label.tag = Self.titleTag
+		label.text = Self.title
+		label.font = UIFont(name: ConstsIdenfyFonts.idenfyFontBoldV2, size: 17)
+		label.textColor = IdenfyCommonColors.idenfySecondColorV2
+		label.textAlignment = .center
+		label.translatesAutoresizingMaskIntoConstraints = false
+		parent.addSubview(label)
+		NSLayoutConstraint.activate([
+			label.centerXAnchor.constraint(equalTo: logo.centerXAnchor),
+			label.centerYAnchor.constraint(equalTo: logo.centerYAnchor),
+		])
 	}
 
 	// Buttons carry their own height constraint. Editing its constant keeps the
@@ -122,6 +158,17 @@ final class KaraIdenfyLayout: NSObject, UINavigationControllerDelegate {
 			if constraint.constant != Self.buttonHeight {
 				constraint.constant = Self.buttonHeight
 			}
+		}
+
+		// Derived from the height we just imposed, so it is always an exact pill.
+		// The static `idenfyButtonCorderRadius` cannot be: it is one value for
+		// buttons of several heights, and anything above half the height distorts
+		// the corners. Sublayers carry the gradient fill and need it too.
+		let radius = Self.buttonHeight / 2
+		button.layer.cornerRadius = radius
+		button.layer.masksToBounds = true
+		for sublayer in button.layer.sublayers ?? [] where sublayer is CAGradientLayer {
+			sublayer.cornerRadius = radius
 		}
 	}
 
