@@ -21,7 +21,8 @@ final class KaraIdenfyLayout: NSObject, UINavigationControllerDelegate {
 	private static let ctaMinimumWidth = CGFloat(200)
 	// Room for the back button on one side and the language globe on the other.
 	private static let titleSideInset = CGFloat(56)
-	// The app's text input: `h-10 rounded-md` in components/ui/input.tsx.
+	// Fallback only: the country field is normally matched to the document chips,
+	// which the SDK sizes itself. `h-10` from components/ui/input.tsx.
 	private static let fieldHeight = CGFloat(40)
 	private static let fieldRadius = CGFloat(8)
 
@@ -137,7 +138,10 @@ final class KaraIdenfyLayout: NSObject, UINavigationControllerDelegate {
 		if let selection = view as? CountryAndDocumentSelectionView {
 			centerCells(in: selection.documentTableView)
 			centerCells(in: selection.digitalIdTableView)
-			resizeField(selection.countrySelectionInputView)
+			resizeField(
+				selection.countrySelectionInputView,
+				matching: chipHeight(in: selection.documentTableView)
+			)
 			roundLikeField(in: selection.documentTableView)
 			roundLikeField(in: selection.digitalIdTableView)
 		}
@@ -236,12 +240,37 @@ final class KaraIdenfyLayout: NSObject, UINavigationControllerDelegate {
 	// The country field is a plain input the SDK sizes to its content. Give it the
 	// app's control height so it reads as a field rather than a caption, and a
 	// radius derived from that height so it stays a pill.
-	private func resizeField(_ field: UIView) {
+	private func resizeField(_ field: UIView, matching chip: CGFloat?) {
+		let height = chip ?? Self.fieldHeight
 		for constraint in field.constraints
 		where constraint.firstAttribute == .height && constraint.relation == .equal {
-			constraint.constant = Self.fieldHeight
+			constraint.constant = height
 		}
 		field.layer.cornerRadius = Self.fieldRadius
+	}
+
+	// The chips are sized by the SDK from their content, so the country field is
+	// measured against them rather than pinned to a number that would drift the
+	// day the chip copy or font changes.
+	private func chipHeight(in tableView: UITableView) -> CGFloat? {
+		for cell in tableView.visibleCells {
+			if let height = roundedHeight(in: cell.contentView) {
+				return height
+			}
+		}
+		return nil
+	}
+
+	private func roundedHeight(in view: UIView) -> CGFloat? {
+		if view.layer.cornerRadius > 0, view.bounds.height > 0 {
+			return view.bounds.height
+		}
+		for subview in view.subviews {
+			if let height = roundedHeight(in: subview) {
+				return height
+			}
+		}
+		return nil
 	}
 
 	// The chips are selectors, not buttons, so they follow the app's text input
