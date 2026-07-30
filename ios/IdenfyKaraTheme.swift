@@ -20,7 +20,7 @@ enum KaraIdenfyTheme {
 	// Palette — mirrors apps/native/global.css (.dark), background per request.
 	// Internal: KaraIdenfyLayout matches views painted with it (see there).
 	static let background = karaColor("#090710") // app dark bg override
-	private static let gold = karaColor("#E1BE6B") // --gold (accents, links, selection)
+	static let gold = karaColor("#E1BE6B") // --gold (accents, links, selection)
 	private static let text = karaColor("#FAFAFA") // --foreground
 	// Our cards are `bg-white/5` over a `border-white/10`, not an opaque grey.
 	// The app is one background image away from black, so a translucent surface

@@ -141,11 +141,13 @@ final class KaraIdenfyLayout: NSObject, UINavigationControllerDelegate {
 			roundLikeField(in: selection.digitalIdTableView)
 		}
 
-		// The camera toolbar icons ship grey. White, like every other icon we own.
+		// The camera toolbar icons ship grey. The upload one goes gold, since it is
+		// an action we want people to find; the lens toggle just goes white.
 		if let camera = view as? DocumentCameraViewV2 {
-			for icon in [
-				camera.cameraSessionsButtons.idenfyUploadPhotoButton,
-				camera.cameraSessionsButtons.idenfySwitchLensButton,
+			let buttons = camera.cameraSessionsButtons
+			for (icon, tint) in [
+				(buttons.idenfyUploadPhotoButton, KaraIdenfyTheme.gold),
+				(buttons.idenfySwitchLensButton, UIColor.white),
 			] {
 				icon.imageView?.image = icon.image(for: .normal)?
 					.withRenderingMode(.alwaysTemplate)
@@ -153,7 +155,7 @@ final class KaraIdenfyLayout: NSObject, UINavigationControllerDelegate {
 					icon.image(for: .normal)?.withRenderingMode(.alwaysTemplate),
 					for: .normal
 				)
-				icon.tintColor = .white
+				icon.tintColor = tint
 			}
 		}
 

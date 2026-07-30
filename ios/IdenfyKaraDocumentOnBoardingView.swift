@@ -1,5 +1,6 @@
 import Foundation
 import UIKit
+import idenfycore
 import idenfyviews
 
 //  The screen before the camera, with a line pointing at the file option.
@@ -22,10 +23,27 @@ final class KaraIdenfyDocumentOnBoardingView: StaticCameraOnBoardingViewV2 {
 		super.layoutSubviews()
 		guard !installed, bounds.width > 0 else { return }
 		installed = true
-		// The instruction copy comes from the iDenfy dashboard, is far too long for
-		// the space, and repeats what the title already says.
-		idenfyUILabelCameraOnBoardingCommonInformationDescription.text = nil
+		replaceProofOfAddressCopy()
 		addFileHint()
+	}
+
+	// The proof-of-address instructions come from the iDenfy dashboard: they list
+	// no accepted document, so people bring the wrong paper. Ours name them first,
+	// then keep the SDK's constraints. Only this step is touched; the identity
+	// steps keep whatever the dashboard sends.
+	private func replaceProofOfAddressCopy() {
+		guard currentStep == .UTILITY_BILL || currentStep == .SECOND_UTILITY_BILL else {
+			return
+		}
+		let text = Bundle.main.localizedString(
+			forKey: "kara_poa_instructions", value: "", table: "Idenfy"
+		)
+		guard !text.isEmpty, text != "kara_poa_instructions" else { return }
+
+		let label = idenfyUILabelCameraOnBoardingCommonInformationDescription
+		label.text = text
+		label.numberOfLines = 0
+		label.textAlignment = .left
 	}
 
 	private func addFileHint() {
