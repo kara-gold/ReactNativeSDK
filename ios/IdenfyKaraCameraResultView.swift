@@ -14,6 +14,17 @@ import idenfyviews
 //  done with it. Injected through withCameraWithRectangleResultView.
 @MainActor
 final class KaraIdenfyCameraResultView: CameraResultViewV2 {
+	// The superclass has no plain init: it needs to know which camera framing the
+	// screen belongs to, so both variants are built explicitly below.
+	required init(frame: CGRect, withRectangle: IdenfyCameraViewType) {
+		super.init(frame: frame, withRectangle: withRectangle)
+	}
+
+	@available(*, unavailable)
+	required convenience init?(coder: NSCoder) {
+		fatalError("not used")
+	}
+
 	// The app's grey `secondary` button, which is what was asked for originally.
 	private static let fill = UIColor(red: 38 / 255, green: 38 / 255, blue: 38 / 255, alpha: 1)
 

@@ -1,5 +1,6 @@
 import Foundation
 import idenfycore
+import idenfyviews
 import iDenfySDK
 
 class GetSdkConfig {
@@ -124,8 +125,12 @@ class GetSdkConfig {
     IdenfyViewsBuilderV2()
       .withPrivacyPolicyView(KaraIdenfyPrivacyPolicyView())
       .withStaticCameraOnBoardingView(KaraIdenfyDocumentOnBoardingView())
-      .withCameraWithRectangleResultView(KaraIdenfyCameraResultView())
-      .withCameraWithoutRectangleResultView(KaraIdenfyCameraResultView())
+      .withCameraWithRectangleResultViewV2(
+        KaraIdenfyCameraResultView(frame: .zero, withRectangle: .withRectangle)
+      )
+      .withCameraWithoutRectangleResultViewV2(
+        KaraIdenfyCameraResultView(frame: .zero, withRectangle: .withoutRectangle)
+      )
       .build()
   }
 
