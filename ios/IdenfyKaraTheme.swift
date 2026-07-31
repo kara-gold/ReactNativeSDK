@@ -170,9 +170,13 @@ enum KaraIdenfyTheme {
 		settings.livenessResultScreenForegroundColor = text
 		settings.livenessResultScreenIndicatorColor = gold
 		settings.livenessResultScreenUploadProgressFillColor = gold
-		// No logo on the face scan: the screen is a camera and a face, anything else
-		// is noise. This also turns off iDenfy's "yourAppLOGO" placeholder.
-		settings.livenessReadyScreenShowBrandingImage = false
+		// FaceTec always draws something here: turning the branding off just fell
+		// back to its own "yourAppLOGO" placeholder rather than showing nothing.
+		// So the Kara wordmark goes back, untinted so it keeps its own colours.
+		if let logo = karaImage("KaraBrandingLogo") {
+			settings.livenessOverlayBrandingImage = logo
+			settings.livenessReadyScreenShowBrandingImage = true
+		}
 		return settings
 	}
 
