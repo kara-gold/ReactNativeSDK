@@ -23,7 +23,7 @@ final class KaraIdenfyDocumentOnBoardingView: StaticCameraOnBoardingViewV2 {
 		super.layoutSubviews()
 		guard !installed, bounds.width > 0 else { return }
 		installed = true
-		replaceProofOfAddressCopy()
+		customiseProofOfAddressStep()
 		addFileHint()
 	}
 
@@ -31,10 +31,11 @@ final class KaraIdenfyDocumentOnBoardingView: StaticCameraOnBoardingViewV2 {
 	// no accepted document, so people bring the wrong paper. Ours name them first,
 	// then keep the SDK's constraints. Only this step is touched; the identity
 	// steps keep whatever the dashboard sends.
-	private func replaceProofOfAddressCopy() {
+	private func customiseProofOfAddressStep() {
 		guard currentStep == .UTILITY_BILL || currentStep == .SECOND_UTILITY_BILL else {
 			return
 		}
+		hideDocumentIcon()
 		// From React Native first, so the list is correctable over the air; the
 		// bundled table is only the fallback for an older JS bundle.
 		let fallback = Bundle.main.localizedString(
@@ -48,6 +49,20 @@ final class KaraIdenfyDocumentOnBoardingView: StaticCameraOnBoardingViewV2 {
 		label.text = text
 		label.numberOfLines = 0
 		label.textAlignment = .left
+	}
+
+	// Once the accepted-document list is on screen the illustration takes a third
+	// of it for nothing. Dropping the image (not just hiding it) also drops the
+	// intrinsic size, so the space collapses instead of staying blank; any
+	// explicit height is zeroed too. The identity steps keep their illustration.
+	private func hideDocumentIcon() {
+		let icon = idenfyUIImageViewCameraOnBoardingCommonInformationIcon
+		icon.image = nil
+		icon.isHidden = true
+		for constraint in icon.constraints
+		where constraint.firstAttribute == .height && constraint.secondItem == nil {
+			constraint.constant = 0
+		}
 	}
 
 	private func addFileHint() {
