@@ -58,7 +58,7 @@ enum KaraIdenfyTheme {
 		applySelectionCards()
 		applyDarkLists()
 		applyPopups()
-		KaraIdenfyRetakeAlert.install()
+		KaraIdenfySecondaryButtons.install()
 	}
 
 	// The grey secondary button — retake a photo, choose another file.
@@ -147,9 +147,9 @@ enum KaraIdenfyTheme {
 	private static let hairline = CGFloat(1) // the app's `border`, not iDenfy's 2pt
 	private static let rowHeight = CGFloat(56) // matches the `large` button height
 
-	// Nothing here targets the retake / choose-another buttons: they are left
-	// exactly as iDenfy renders them, on request, after every attempt to restyle
-	// them ended with an invisible label.
+	// The retake / choose-another buttons take their radius from the shared
+	// `idenfyButtonCorderRadius` above; their colours cannot be set here at all,
+	// see styleSecondaryButton().
 	@MainActor
 	private static func applyCornerRadii() {
 		IdenfyButtonsUISettingsV2.idenfyButtonCorderRadius = pill
