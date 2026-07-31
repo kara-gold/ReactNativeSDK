@@ -4,34 +4,27 @@ import idenfyviews
 
 //  The capture result screen, with a readable retake button.
 //
-//  `idenfyPhotoResultViewRetakePhotoButtonTextColor` has no effect on this
-//  screen: measured 2026-07-31, the SDK paints the title with the button's own
-//  BACKGROUND colour, so the label is always invisible whatever the setting.
-//  Gold fill gave gold text, white fill gave white text. Six attempts through
-//  the settings API were doomed for that reason.
+//  `idenfyPhotoResultViewRetakePhotoButtonTextColor` has no effect here:
+//  measured 2026-07-31, the SDK paints the title with the button's own
+//  BACKGROUND colour, so the label was invisible whatever the setting. A gold
+//  fill gave gold text, a white fill gave white text. Six attempts through the
+//  settings API were doomed for that reason, and the colour is set on the
+//  button itself instead.
 //
-//  So the colour is set here instead, on the public button, after the SDK is
-//  done with it. Injected through withCameraWithRectangleResultView.
+//  No initialiser is declared on purpose: adding one makes Swift demand
+//  init(coder:) as well, and the SDK deep-copies injected views through
+//  NSKeyedArchiver. An unavailable init(coder:) crashed the app the moment a
+//  photo was taken, the same archiving path that took the process down on
+//  2026-07-30. With none declared, the superclass's are inherited untouched.
 @MainActor
 final class KaraIdenfyCameraResultView: CameraResultViewV2 {
-	// The superclass has no plain init: it needs to know which camera framing the
-	// screen belongs to, so both variants are built explicitly below.
-	required init(frame: CGRect, withRectangle: IdenfyCameraViewType) {
-		super.init(frame: frame, withRectangle: withRectangle)
-	}
-
-	@available(*, unavailable)
-	required convenience init?(coder: NSCoder) {
-		fatalError("not used")
-	}
-
 	// The app's grey `secondary` button, which is what was asked for originally.
 	private static let fill = UIColor(red: 38 / 255, green: 38 / 255, blue: 38 / 255, alpha: 1)
 
 	override func layoutSubviews() {
 		super.layoutSubviews()
 		// Re-applied on every pass: the SDK rewrites the title colour whenever it
-		// re-styles the button, so setting it once is not enough.
+		// restyles the button, so setting it once is not enough.
 		chooseAnotherFileButton.setTitleColor(.white, for: .normal)
 		chooseAnotherFileButton.setTitleColor(.white, for: .highlighted)
 		chooseAnotherFileButton.backgroundColor = Self.fill
