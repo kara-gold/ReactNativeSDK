@@ -29,30 +29,25 @@ final class KaraIdenfyCameraResultView: CameraResultViewV2 {
 		button.backgroundColor = Self.fill
 		button.layer.borderColor = Self.fill.cgColor
 
-		// The title is an ATTRIBUTED string, which is why every colour setting was
-		// ignored: setTitleColor does nothing against one, and the SDK builds it
-		// with the button's own background colour, hence a label that always
-		// matched the fill. Recolour the string itself, keeping its font.
-		for state in [UIControl.State.normal, .highlighted] {
-			guard let current = button.attributedTitle(for: state) ?? plain(state, on: button)
-			else { continue }
-			let recoloured = NSMutableAttributedString(attributedString: current)
-			recoloured.addAttribute(
-				.foregroundColor,
-				value: UIColor.white,
-				range: NSRange(location: 0, length: recoloured.length)
-			)
-			button.setAttributedTitle(recoloured, for: state)
-		}
-	}
-
-	// Falls back to the plain title so the recolouring also covers the case where
-	// the SDK has not built an attributed one yet.
-	private func plain(_ state: UIControl.State, on button: UIButton) -> NSAttributedString? {
-		guard let title = button.title(for: state), !title.isEmpty else { return nil }
-		return NSAttributedString(
-			string: title,
-			attributes: [.font: button.titleLabel?.font ?? UIFont.systemFont(ofSize: 12)]
+		// The title is set here, text included, not just its colour. Recolouring
+		// alone never showed anything, and the fill obeys in the same method, so
+		// the button simply carries no title on this screen. The string is the
+		// SDK's own, so it stays translated in the four locales.
+		let title = Bundle.main.localizedString(
+			forKey: "idenfy_document_and_face_camera_results_button_retake_photo_title_v2",
+			value: "",
+			table: "Idenfy"
 		)
+		guard !title.hasPrefix("idenfy_"), !title.isEmpty else { return }
+
+		let styled = NSAttributedString(
+			string: title,
+			attributes: [
+				.foregroundColor: UIColor.white,
+				.font: button.titleLabel?.font ?? UIFont.boldSystemFont(ofSize: 12),
+			]
+		)
+		button.setAttributedTitle(styled, for: .normal)
+		button.setAttributedTitle(styled, for: .highlighted)
 	}
 }
