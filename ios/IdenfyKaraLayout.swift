@@ -120,6 +120,22 @@ final class KaraIdenfyLayout: NSObject, UINavigationControllerDelegate {
 		// buttons kept eating their label, through three different attempts. The
 		// stock height is correct; only the alignment is ours. Bisection step, put
 		// back only with a measurement of the button's real state in hand.
+		// ponytail: temporary. Three theories about this button were wrong; this
+		// prints what it actually is so the next change is based on a measurement.
+		if let button = view as? UIButton, button.bounds.width >= Self.ctaMinimumWidth {
+			print("""
+			[kara-btn] title=\(button.title(for: .normal) ?? "nil") \
+			attr=\(button.attributedTitle(for: .normal)?.string ?? "nil") \
+			titleColor=\(button.titleColor(for: .normal)?.description ?? "nil") \
+			bg=\(button.backgroundColor?.description ?? "nil") \
+			frame=\(button.frame) labelFrame=\(button.titleLabel?.frame ?? .zero) \
+			labelHidden=\(button.titleLabel?.isHidden ?? false) \
+			labelAlpha=\(button.titleLabel?.alpha ?? -1) \
+			sublayers=\(button.layer.sublayers?.count ?? 0) \
+			subviews=\(button.subviews.map { String(describing: type(of: $0)) })
+			""")
+		}
+
 		if let button = view as? UIButton, button.bounds.width >= Self.ctaMinimumWidth,
 			button.title(for: .normal)?.isEmpty == false
 		{
