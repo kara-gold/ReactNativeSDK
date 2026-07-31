@@ -121,6 +121,30 @@ final class KaraIdenfyLayout: NSObject, UINavigationControllerDelegate {
 		// stock height is correct; only the alignment is ours. Bisection step, put
 		// back only with a measurement of the button's real state in hand.
 
+		// Retake / choose-another buttons, wherever they appear. They are recognised
+		// by the grey fill the theme gives them rather than by screen class: the
+		// same button shows up on the capture result and on at least four alerts,
+		// and their view types are not worth enumerating. The SDK paints the label
+		// gold whatever the text and border settings say, so it is forced here.
+		if let button = view as? UIButton,
+			button.backgroundColor == KaraIdenfyTheme.secondaryFill
+		{
+			button.layer.borderWidth = 0
+			if let title = button.attributedTitle(for: .normal), title.length > 0 {
+				let white = NSMutableAttributedString(attributedString: title)
+				white.addAttribute(
+					.foregroundColor,
+					value: UIColor.white,
+					range: NSRange(location: 0, length: white.length)
+				)
+				button.setAttributedTitle(white, for: .normal)
+				button.setAttributedTitle(white, for: .highlighted)
+			}
+			button.setTitleColor(.white, for: .normal)
+			button.setTitleColor(.white, for: .highlighted)
+			button.titleLabel?.textColor = .white
+		}
+
 		if let button = view as? UIButton, button.bounds.width >= Self.ctaMinimumWidth,
 			button.title(for: .normal)?.isEmpty == false
 		{

@@ -32,7 +32,7 @@ enum KaraIdenfyTheme {
 	private static let overlay = karaColor("#1C1C1E")
 	private static let onButton = karaColor("#090710") // dark text on white buttons
 	private static let buttonFill = karaColor("#FAFAFA")
-	private static let secondaryFill = karaColor("#262626") // --secondary, our grey button
+	static let secondaryFill = karaColor("#262626") // --secondary, our grey button
 	private static let success = karaColor("#16A34A") // --kara-green
 	private static let error = karaColor("#EF4444") // --kara-red
 	private static let warning = karaColor("#E7B008") // --kara-yellow
