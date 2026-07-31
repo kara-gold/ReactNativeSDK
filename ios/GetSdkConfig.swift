@@ -124,6 +124,8 @@ class GetSdkConfig {
     IdenfyViewsBuilderV2()
       .withPrivacyPolicyView(KaraIdenfyPrivacyPolicyView())
       .withStaticCameraOnBoardingView(KaraIdenfyDocumentOnBoardingView())
+      .withCameraWithRectangleResultView(KaraIdenfyCameraResultView())
+      .withCameraWithoutRectangleResultView(KaraIdenfyCameraResultView())
       .build()
   }
 

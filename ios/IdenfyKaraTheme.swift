@@ -272,13 +272,8 @@ enum KaraIdenfyTheme {
 		// Left on iDenfy's own white fill with a coloured border: every attempt to
 		// restyle these into our grey secondary button ended with an invisible
 		// label, and the stock rendering is the only one that demonstrably shows it.
-		// EXPERIMENT (temporary): white fill, red label. If the button renders white
-		// with red text, the text setting is honoured and the fault is elsewhere. If
-		// it renders white with no text, the setting is ignored on this screen and
-		// the colour has to be set from an injected view instead.
-		IdenfyPhotoResultViewUISettingsV2.idenfyPhotoResultViewRetakePhotoButtonBackgroundColor = .white
-		IdenfyPhotoResultViewUISettingsV2.idenfyPhotoResultViewRetakePhotoButtonBorderColor = .white
-		IdenfyPhotoResultViewUISettingsV2.idenfyPhotoResultViewRetakePhotoButtonTextColor = .red
+		// The retake button's colours are set in KaraIdenfyCameraResultView: the
+		// text setting is inert on that screen (see there).
 		IdenfyPdfResultViewUISettingsV2.idenfyPdfResultViewRetakePdfButtonTextColor = onButton
 		IdenfyUploadPhotoViewUISettingsV2.idenfyUploadPhotoViewChooseAnotherPhotoButtonTextColor = onButton
 		IdenfyFaceAuthenticationCommonUISettingsV2.idenfyFaceAuthenticationRetryAlertRetryButtonTextColor = onButton
