@@ -61,30 +61,51 @@ enum KaraIdenfyTheme {
 		KaraIdenfyRetakeAlert.install()
 	}
 
-	// The grey secondary button — retake a photo, choose another file. Its label
-	// follows the SDK's border colour rather than its text setting, so both are
-	// forced here: the border that carried the colour is removed once the label
-	// has been repainted. Idempotent, since one caller is a layout pass.
+	// The grey secondary button — retake a photo, choose another file.
+	//
+	// Its label is repainted through every route the SDK might have used, because
+	// they do not override each other: on the alerts, the fill and the border took
+	// our values while the text stayed gold, which only happens when the colour is
+	// carried by the label's own attributed text. `setTitleColor` and
+	// `setAttributedTitle` are both inert against that.
+	//
+	// Idempotent: one caller is a layout pass, so nothing is reassigned once the
+	// label is already ours, and the button never re-invalidates its own layout.
 	@MainActor
 	static func styleSecondaryButton(_ button: UIButton) {
-		guard button.backgroundColor != secondaryFill || button.layer.borderWidth > 0 else {
-			return
-		}
+		guard
+			button.backgroundColor != secondaryFill
+			|| button.layer.borderWidth > 0
+			|| button.titleLabel?.textColor != text
+		else { return }
+
 		button.backgroundColor = secondaryFill
 		button.layer.borderWidth = 0
-		if let title = button.attributedTitle(for: .normal), title.length > 0 {
-			let white = NSMutableAttributedString(attributedString: title)
-			white.addAttribute(
-				.foregroundColor,
-				value: text,
-				range: NSRange(location: 0, length: white.length)
-			)
-			button.setAttributedTitle(white, for: .normal)
-			button.setAttributedTitle(white, for: .highlighted)
-		}
 		button.setTitleColor(text, for: .normal)
 		button.setTitleColor(text, for: .highlighted)
-		button.titleLabel?.textColor = text
+
+		for state in [UIControl.State.normal, .highlighted] {
+			guard let title = button.attributedTitle(for: state), title.length > 0 else {
+				continue
+			}
+			button.setAttributedTitle(repainted(title), for: state)
+		}
+
+		// Covers both the title label and any label the SDK adds itself.
+		for label in button.subviews.compactMap({ $0 as? UILabel }) {
+			if let attributed = label.attributedText, attributed.length > 0 {
+				label.attributedText = repainted(attributed)
+			}
+			label.textColor = text
+		}
+	}
+
+	private static func repainted(_ string: NSAttributedString) -> NSAttributedString {
+		let copy = NSMutableAttributedString(attributedString: string)
+		copy.addAttribute(
+			.foregroundColor, value: text, range: NSRange(location: 0, length: copy.length)
+		)
+		return copy
 	}
 
 	// Typography — Gabarito, the app's UI font. It is already embedded in the main
