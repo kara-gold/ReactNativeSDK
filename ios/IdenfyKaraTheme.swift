@@ -58,6 +58,33 @@ enum KaraIdenfyTheme {
 		applySelectionCards()
 		applyDarkLists()
 		applyPopups()
+		KaraIdenfyRetakeAlert.install()
+	}
+
+	// The grey secondary button — retake a photo, choose another file. Its label
+	// follows the SDK's border colour rather than its text setting, so both are
+	// forced here: the border that carried the colour is removed once the label
+	// has been repainted. Idempotent, since one caller is a layout pass.
+	@MainActor
+	static func styleSecondaryButton(_ button: UIButton) {
+		guard button.backgroundColor != secondaryFill || button.layer.borderWidth > 0 else {
+			return
+		}
+		button.backgroundColor = secondaryFill
+		button.layer.borderWidth = 0
+		if let title = button.attributedTitle(for: .normal), title.length > 0 {
+			let white = NSMutableAttributedString(attributedString: title)
+			white.addAttribute(
+				.foregroundColor,
+				value: text,
+				range: NSRange(location: 0, length: white.length)
+			)
+			button.setAttributedTitle(white, for: .normal)
+			button.setAttributedTitle(white, for: .highlighted)
+		}
+		button.setTitleColor(text, for: .normal)
+		button.setTitleColor(text, for: .highlighted)
+		button.titleLabel?.textColor = text
 	}
 
 	// Typography — Gabarito, the app's UI font. It is already embedded in the main
