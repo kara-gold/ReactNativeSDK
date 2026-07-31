@@ -99,10 +99,12 @@ enum KaraIdenfyTheme {
 	private static let hairline = CGFloat(1) // the app's `border`, not iDenfy's 2pt
 	private static let rowHeight = CGFloat(56) // matches the `large` button height
 
+	// Nothing here targets the retake / choose-another buttons: they are left
+	// exactly as iDenfy renders them, on request, after every attempt to restyle
+	// them ended with an invisible label.
 	@MainActor
 	private static func applyCornerRadii() {
 		IdenfyButtonsUISettingsV2.idenfyButtonCorderRadius = pill
-		IdenfyButtonsUISettingsV2.idenfyChooseAnotherPhotoButtonCornerRadius = pill
 
 		// Cards and panels.
 		IdenfyPrivacyPolicyViewUISettingsV2.idenfyPrivacyPolicyCardBorderRadius = cardRadius
@@ -269,14 +271,6 @@ enum KaraIdenfyTheme {
 		IdenfyStaticCameraOnBoardingViewUISettingsV2.idenfyCameraOnBoardingEnabledContinueButtonTextColor = onButton
 		IdenfyStaticCameraOnBoardingViewUISettingsV2.idenfyCameraOnBoardingDisabledContinueButtonTextColor = onButton
 		IdenfyPhotoResultViewUISettingsV2.idenfyPhotoResultViewContinueButtonTextColor = onButton
-		// Left on iDenfy's own white fill with a coloured border: every attempt to
-		// restyle these into our grey secondary button ended with an invisible
-		// label, and the stock rendering is the only one that demonstrably shows it.
-		// The retake button's colours are set in KaraIdenfyCameraResultView: the
-		// text setting is inert on that screen (see there).
-		IdenfyPdfResultViewUISettingsV2.idenfyPdfResultViewRetakePdfButtonTextColor = onButton
-		IdenfyUploadPhotoViewUISettingsV2.idenfyUploadPhotoViewChooseAnotherPhotoButtonTextColor = onButton
-		IdenfyFaceAuthenticationCommonUISettingsV2.idenfyFaceAuthenticationRetryAlertRetryButtonTextColor = onButton
 		IdenfyPdfResultViewUISettingsV2.idenfyPdfResultViewContinueButtonTextColor = onButton
 		IdenfyUploadPhotoViewUISettingsV2.idenfyUploadPhotoViewContinuePhotoButtonTextColor = onButton
 		IdenfyFaceAuthenticationInitialViewUISettingsV2.idenfyFaceAuthenticationInitialViewContinueButtonTextColor = onButton
