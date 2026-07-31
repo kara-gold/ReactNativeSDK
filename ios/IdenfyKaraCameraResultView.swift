@@ -21,6 +21,25 @@ final class KaraIdenfyCameraResultView: CameraResultViewV2 {
 	override func layoutSubviews() {
 		super.layoutSubviews()
 		// Re-applied every pass: the SDK restyles the button after its own layout.
-		chooseAnotherFileButton.layer.borderWidth = 0
+		let button = chooseAnotherFileButton
+		button.layer.borderWidth = 0
+
+		// The label is gold whatever the settings say, so it is recoloured on the
+		// string itself. This works now only because the label is actually there:
+		// the earlier attempts recoloured a title that was invisible for another
+		// reason, which is why they all looked like no-ops.
+		if let title = button.attributedTitle(for: .normal), title.length > 0 {
+			let white = NSMutableAttributedString(attributedString: title)
+			white.addAttribute(
+				.foregroundColor,
+				value: UIColor.white,
+				range: NSRange(location: 0, length: white.length)
+			)
+			button.setAttributedTitle(white, for: .normal)
+			button.setAttributedTitle(white, for: .highlighted)
+		}
+		button.setTitleColor(.white, for: .normal)
+		button.setTitleColor(.white, for: .highlighted)
+		button.titleLabel?.textColor = .white
 	}
 }
