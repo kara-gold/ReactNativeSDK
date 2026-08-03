@@ -16,7 +16,8 @@ import com.idenfy.idenfySdk.api.response.InformationUpdateStatus
 
 
 internal class IdenfySdkActivityEventListener(private val idenfyReactNativeCallbacksUseCase: IdenfyReactNativeCallbacksUseCase,
-                                     private val nativeResponseToReactNativeResponseMapper: NativeResponseToReactNativeResponseMapper) : BaseActivityEventListener() {
+                                     private val nativeResponseToReactNativeResponseMapper: NativeResponseToReactNativeResponseMapper,
+                                     private val karaIdenfyTrace: KaraIdenfyTrace) : BaseActivityEventListener() {
 
     override fun onActivityResult(activity: Activity, requestCode: Int, resultCode: Int, data: Intent?) {
         val callbackReceiver = idenfyReactNativeCallbacksUseCase.getCallbackReceiver() ?: return
@@ -38,6 +39,10 @@ internal class IdenfySdkActivityEventListener(private val idenfyReactNativeCallb
                         return
                     }
                     val responseMap: WritableMap = nativeResponseToReactNativeResponseMapper.map(idenfyIdentificationResult)
+                    // Added here rather than in the mapper, for the same reason as
+                    // iOS: the mapper maps what the SDK returned, the trace is ours.
+                    // A JS listener that failed to attach still gets everything.
+                    responseMap.putString("karaTrace", karaIdenfyTrace.dump())
                     callbackReceiver.resolve(responseMap)
                     idenfyReactNativeCallbacksUseCase.resetPromise()
                 }
