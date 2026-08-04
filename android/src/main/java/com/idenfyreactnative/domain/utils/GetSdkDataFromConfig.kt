@@ -17,8 +17,26 @@ internal object GetSdkDataFromConfig {
   }
 
 
-  fun getIdenfySettingsFromConfig(config: ReadableMap): IdenfySettingsV2 {
+  /**
+   * @param context optional, and only used to load the liveness fonts from assets.
+   *   Declared with a default so the existing call sites keep compiling untouched.
+   *   Pass `currentActivity` from IdenfyReactNativeModule to switch the face-scan
+   *   screens from FaceTec's typeface to Gabarito; every colour applies either way.
+   */
+  fun getIdenfySettingsFromConfig(
+    config: ReadableMap,
+    context: android.content.Context? = null
+  ): IdenfySettingsV2 {
     val idenfySettings = IdenfySettingsV2()
+
+    // Built up front and assigned unconditionally at the bottom of this function.
+    // It used to be constructed inside the two `idenfySettings` / `idenfyUISettings`
+    // config branches, and the Kara app calls start({ authToken }) with neither key,
+    // so the whole block never ran: the settings object was never attached and the
+    // liveness theme was silently dropped. Byte-for-byte the same bug that made
+    // withLivenessUISettings dead on iOS, see ios/GetSdkConfig.swift.
+    val idenfyUISettingsV2 = IdenfyUISettingsV2()
+    idenfyUISettingsV2.idenfyLivenessUISettingsV2 = KaraIdenfyLiveness.settings(context)
 
     if (config.hasKey("idenfySettings") && !config.isNull("idenfySettings")) {
       val map = config.getMap("idenfySettings")!!
@@ -32,9 +50,9 @@ internal object GetSdkDataFromConfig {
         idenfySettings.selectedLocale = IdenfyLocaleEnum.valueOf(locale).locale
       }
 
-      if (map.hasKey("idenfyUISettings") && !map.isNull("idenfyUISettings")) {
-        val uiSettingsMap = map.getMap("idenfyUISettings") ?: return idenfySettings
-        val idenfyUISettingsV2 = IdenfyUISettingsV2()
+      // `?.let` rather than `?: return`: an early return here would skip the
+      // assignment at the bottom and put us straight back to an unthemed SDK.
+      map.getMap("idenfyUISettings")?.takeIf { !map.isNull("idenfyUISettings") }?.let { uiSettingsMap ->
 
         if (uiSettingsMap.hasKey("isAdditionalSupportEnabled") && !uiSettingsMap.isNull("isAdditionalSupportEnabled")) {
           idenfyUISettingsV2.isAdditionalSupportEnabled =
@@ -67,12 +85,10 @@ internal object GetSdkDataFromConfig {
             )
         }
 
-        if (uiSettingsMap.hasKey("idenfyIdentificationResultsUISettingsV2") && !uiSettingsMap.isNull(
-            "idenfyIdentificationResultsUISettingsV2"
-          )
-        ) {
-          val resultsUISettingsMap =
-            uiSettingsMap.getMap("idenfyIdentificationResultsUISettingsV2") ?: return idenfySettings
+        // Same reason as above: no early return, or everything below is skipped.
+        uiSettingsMap.getMap("idenfyIdentificationResultsUISettingsV2")
+          ?.takeIf { !uiSettingsMap.isNull("idenfyIdentificationResultsUISettingsV2") }
+          ?.let { resultsUISettingsMap ->
           val idenfyIdentificationResultsUISettingsV2 = IdenfyIdentificationResultsUISettingsV2()
 
           if (resultsUISettingsMap.hasKey("isShowErrorSpinnerImmediateRedirect") && !resultsUISettingsMap.isNull(
@@ -147,9 +163,12 @@ internal object GetSdkDataFromConfig {
             else -> null
           }
         }
-        idenfySettings.idenfyUISettingsV2 = idenfyUISettingsV2
       }
     }
+
+    // Outside both config branches on purpose. This assignment is what carries the
+    // liveness theme into the SDK, and the app sends no config maps at all.
+    idenfySettings.idenfyUISettingsV2 = idenfyUISettingsV2
     return idenfySettings
   }
 
@@ -157,10 +176,13 @@ internal object GetSdkDataFromConfig {
     val faceAuthUISettings = IdenfyFaceAuthUISettings()
     val map = config.getMap("idenfyFaceAuthUISettings")
 
-    if (map?.getBoolean("isLanguageSelectionNeeded") != null) {
+    // getBoolean throws NoSuchKeyException on a missing key, so the old
+    // `map?.getBoolean(x) != null` guard could not do what it looked like it did:
+    // it only survived because the app sends no map at all. Guard on the key.
+    if (map != null && map.hasKey("isLanguageSelectionNeeded") && !map.isNull("isLanguageSelectionNeeded")) {
       faceAuthUISettings.isLanguageSelectionNeeded = map.getBoolean("isLanguageSelectionNeeded")
     }
-    if (map?.getBoolean("skipOnBoardingView") != null) {
+    if (map != null && map.hasKey("skipOnBoardingView") && !map.isNull("skipOnBoardingView")) {
       faceAuthUISettings.skipOnBoardingView = map.getBoolean("skipOnBoardingView")
     }
     return faceAuthUISettings

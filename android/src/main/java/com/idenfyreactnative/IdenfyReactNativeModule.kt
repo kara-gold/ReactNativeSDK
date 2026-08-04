@@ -102,7 +102,7 @@ class IdenfyReactNativeModule(reactContext: ReactApplicationContext) :
     try {
 
       val authToken = GetSdkDataFromConfig.getSdkTokenFromConfig(config)
-      val idenfySettingsV2 = GetSdkDataFromConfig.getIdenfySettingsFromConfig(config)
+      val idenfySettingsV2 = GetSdkDataFromConfig.getIdenfySettingsFromConfig(config, currentActivity)
       idenfySettingsV2.authToken = authToken
 
       // Drop the previous verification's entries, then (re)register. Both
@@ -148,7 +148,7 @@ class IdenfyReactNativeModule(reactContext: ReactApplicationContext) :
     try {
 
       val authToken = GetSdkDataFromConfig.getSdkTokenFromConfig(config)
-      val idenfySettingsV2 = GetSdkDataFromConfig.getIdenfySettingsFromConfig(config)
+      val idenfySettingsV2 = GetSdkDataFromConfig.getIdenfySettingsFromConfig(config, currentActivity)
       idenfySettingsV2.authToken = authToken
 
       IdenfyController.getInstance().initializeIdenfySDKV2WithManual(
