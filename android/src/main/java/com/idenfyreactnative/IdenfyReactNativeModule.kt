@@ -8,8 +8,10 @@ import com.idenfy.idenfySdk.faceauthentication.api.FaceAuthenticationInitializat
 import com.idenfyreactnative.di.DIProvider
 import com.idenfyreactnative.domain.IdenfyReactNativeCallbacksUseCase
 import com.idenfyreactnative.domain.IdenfySdkActivityEventListener
+import android.app.Application
 import com.idenfyreactnative.domain.KaraIdenfyTrace
 import com.idenfyreactnative.domain.utils.GetSdkDataFromConfig
+import com.idenfyreactnative.domain.utils.KaraIdenfyLayout
 
 class IdenfyReactNativeModule(reactContext: ReactApplicationContext) :
   ReactContextBaseJavaModule(reactContext) {
@@ -31,6 +33,10 @@ class IdenfyReactNativeModule(reactContext: ReactApplicationContext) :
     karaIdenfyTrace = diProvider.karaIdenfyTrace
     karaIdenfyTrace.onEvent = { line -> emitTraceLine(line) }
     reactContext.addActivityEventListener(idenfySdkActivityEventListener)
+    // Screen background image and toolbar title. Registered here rather than in
+    // start() because the callbacks have to be in place before iDenfy creates its
+    // activity, and this runs once, long before any verification begins.
+    (reactContext.applicationContext as? Application)?.let { KaraIdenfyLayout.install(it) }
   }
 
   override fun getName(): String {

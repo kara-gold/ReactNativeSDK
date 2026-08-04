@@ -2,6 +2,7 @@ package com.idenfyreactnative.domain.utils
 
 import android.content.Context
 import android.graphics.Typeface
+import com.facetec.sdk.FaceTecCancelButtonCustomization
 import com.facetec.sdk.FaceTecCustomization
 import com.facetec.sdk.FaceTecFeedbackCustomization
 import com.facetec.sdk.FaceTecFrameCustomization
@@ -102,6 +103,14 @@ internal object KaraIdenfyLiveness {
 		val regular = font(context, "hkgrotesk_regular.ttf")
 
 		val guidance = FaceTecGuidanceCustomization().apply {
+			// Set, but PROVEN NOT TO REACH the ready screen: on a Pixel 9a carrying this
+			// object the guidance screen renders FaceTec's default -1 (opaque white)
+			// while foregroundColor below, the oval stroke and the overlay branding all
+			// applied. So the object arrives and this one field is ignored. FaceTec's
+			// public Android API types backgroundColors as int[] (a gradient); this
+			// repackaged 7.0.3 exposes a bare int and evidently paints the guidance
+			// panel from something else. Left in place because it is harmless and is
+			// the documented field; the legibility fix is the text plate below.
 			backgroundColors = BACKGROUND
 			foregroundColor = FOREGROUND
 			// iOS sets this to the dark on-button colour. Not mirrored: on Android
@@ -112,8 +121,11 @@ internal object KaraIdenfyLiveness {
 			readyScreenSubtextTextColor = FOREGROUND
 			retryScreenHeaderTextColor = FOREGROUND
 			retryScreenSubtextTextColor = FOREGROUND
-			// No plate behind the ready-screen copy; the background already carries it.
-			readyScreenTextBackgroundColor = TRANSPARENT
+			// A dark plate behind the ready-screen copy, deliberately NOT transparent as
+			// it was. Since backgroundColors does not reach this screen, the copy would
+			// otherwise keep landing as near-white text on FaceTec's white default. This
+			// plate makes it legible whichever colour ends up behind it.
+			readyScreenTextBackgroundColor = BACKGROUND
 			readyScreenTextBackgroundCornerRadius = PLATE_RADIUS
 
 			// The app's primary button. This is the pairing the resource route can
@@ -186,11 +198,18 @@ internal object KaraIdenfyLiveness {
 
 		val overlay = FaceTecOverlayCustomization().apply {
 			backgroundColor = BACKGROUND
-			// FaceTec always draws something here; left off it falls back to its own
-			// placeholder. Points at the SDK's branding asset, which this module
-			// already overrides with a light recolour.
-			brandingImage = R.drawable.idenfy_ic_liveliness_overlay_branding_image_v2
-			showBrandingImage = true
+			// Off, not recoloured. The device photo shows this mark rendering, which is
+			// how we know the overlay customization is honoured, but the asset is the
+			// iDenfy wordmark and we have no Kara vector in this module to put in its
+			// place. Hiding it beats shipping someone else's brand in our KYC flow.
+			showBrandingImage = false
+		}
+
+		// FaceTec's own X, drawn in its blue, is what the device showed: taking the
+		// escape hatch skips iDenfy's livenessCancelButtonImage wiring, so nothing was
+		// pointing this at an asset of ours.
+		val cancel = FaceTecCancelButtonCustomization().apply {
+			customImage = R.drawable.idenfy_ic_liveliness_camera_session_cancel_image_v2
 		}
 
 		return FaceTecCustomization().apply {
@@ -200,6 +219,7 @@ internal object KaraIdenfyLiveness {
 			feedbackCustomization = feedback
 			resultScreenCustomization = result
 			overlayCustomization = overlay
+			cancelButtonCustomization = cancel
 		}
 	}
 

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The screen title KaraIdenfyLayout drops onto the toolbar in place of the
+  iDenfy wordmark.
+
+  The constraints are copied verbatim from the logo ImageView they replace, in
+  the eight idenfy_partial_layout_*appbarlayout*.xml of sdk-api 9.1.0 (centred
+  on both axes, vertical bias 0.6). Carrying them in XML rather than in Kotlin
+  means the module needs no compile-time dependency on ConstraintLayout: the
+  toolbar's own ConstraintLayout generates these LayoutParams when it inflates
+  this file as its child.
+
+  Width is 0dp (match constraints) rather than wrap_content on purpose: the
+  back button sits at one end and the language globe at the other, so the title
+  is inset from both and shrinks to fit instead of running under them. Same
+  compromise as iOS, where the label caps at the toolbar width minus 2 x 56pt
+  and scales down to 0.7 (20sp -> 14sp here).
+
+  Typography matches the app's Header: font-semibold text-kara-white text-xl.
+-->
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:layout_width="0dp"
+	android:layout_height="wrap_content"
+	android:layout_marginStart="56dp"
+	android:layout_marginEnd="56dp"
+	android:autoSizeMaxTextSize="20sp"
+	android:autoSizeMinTextSize="14sp"
+	android:autoSizeTextType="uniform"
+	android:ellipsize="end"
+	android:fontFamily="@font/hkgrotesk_semibold"
+	android:gravity="center"
+	android:maxLines="1"
+	android:text="@string/kara_idenfy_toolbar_title"
+	android:textColor="@color/idenfySecondColorV2"
+	android:textSize="20sp"
+	app:layout_constraintBottom_toBottomOf="parent"
+	app:layout_constraintEnd_toEndOf="parent"
+	app:layout_constraintStart_toStartOf="parent"
+	app:layout_constraintTop_toTopOf="parent"
+	app:layout_constraintVertical_bias="0.6" />

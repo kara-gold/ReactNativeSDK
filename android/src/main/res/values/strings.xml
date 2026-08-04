@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Our own key, in our own module. iDenfy never looks it up, so this is an
+  addition rather than an override and no SDK string is shadowed.
+
+  Kept verbatim in sync with the "kara_toolbar_title" entry of the four
+  Idenfy.strings tables the app ships for iOS
+  (apps/native/assets/idenfy-strings/<lang>.lproj/Idenfy.strings), so the two
+  platforms show the same words.
+
+  Resolution follows the language picked inside the SDK, not the device
+  locale: DIProvidingBaseActivity overrides getResources() and calls
+  updateConfiguration() with the selected locale, so a lookup made through an
+  iDenfy activity's context lands in the matching values-<lang> below.
+-->
+<resources>
+	<string name="kara_idenfy_toolbar_title">Identity verification</string>
+</resources>

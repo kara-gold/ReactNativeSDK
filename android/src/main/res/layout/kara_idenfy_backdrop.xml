@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The app's assets/backgrounds/general-background.jpg, as the backdrop
+  KaraIdenfyLayout inserts at index 0 of every iDenfy screen root.
+
+  Inflated with the target root as the inflation parent rather than built in
+  Kotlin: the parent then generates the LayoutParams of its own type from the
+  attributes below. The screen roots are CoordinatorLayout on some screens and
+  ConstraintLayout on others, and this way the module needs no compile-time
+  dependency on either.
+
+  Not a window background: the iDenfy activity paints a full-screen, always
+  present document-selection view over its own window, so anything behind the
+  content view is never visible. See KaraIdenfyLayout.
+-->
+<ImageView xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:contentDescription="@null"
+	android:importantForAccessibility="no"
+	android:scaleType="centerCrop"
+	android:src="@drawable/kara_idenfy_background" />
