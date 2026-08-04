@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Kara: Back arrow, iDenfy blue by default. The app bar tints it through an
+     android:theme overlay, which never reaches an ImageView drawable, so the
+     colour has to live in the asset. iOS sets the same white through
+     idenfyDefaultToolbarBackIconTintColor. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="18dp"
+    android:height="12.387dp"
+    android:viewportWidth="18"
+    android:viewportHeight="12.387">
+    <group>
+        <clip-path android:pathData="M0,0h18v12.387h-18z M 0,0" />
+        <path
+            android:fillColor="#FAFAFA"
+            android:pathData="M0.245,5.602 L5.6,0.245a0.837,0.837 0,0 1,1.184 1.184L2.858,5.357L17.163,5.357a0.837,0.837 0,0 1,0 1.674L2.858,7.031l3.928,3.928A0.837,0.837 0,0 1,5.6 12.142L0.245,6.784A0.837,0.837 0,0 1,0.245 5.602Z" />
+    </group>
+</vector>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Kara: Close icon on the language screen. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="12dp"
+    android:height="12dp"
+    android:viewportWidth="12"
+    android:viewportHeight="12">
+    <path
+        android:fillColor="#FAFAFA"
+        android:pathData="M7.061,5.999 L11.78,1.281A0.75,0.75 0,1 0,10.719 0.22L6,4.939 1.281,0.22A0.75,0.75 0,0 0,0.22 1.281L4.939,5.999 0.22,10.719a0.75,0.75 0,1 0,1.061 1.061L6,7.061l4.719,4.719a0.75,0.75 0,1 0,1.061 -1.061Z" />
+</vector>

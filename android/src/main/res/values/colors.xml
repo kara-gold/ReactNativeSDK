@@ -2,50 +2,231 @@
 <!--
   Kara dark + gold theme for the iDenfy native SDK (Android).
 
-  Keep this intentionally minimal: only palette resources and button text
-  colors. Do not override iDenfy drawables/layout primitives here.
+  Ported assignment by assignment from ios/IdenfyKaraTheme.swift, which stays the
+  source of truth for the palette. Android has no colour API: IdenfyUISettingsV2
+  only carries behaviour (onboarding view type, bottom sheets, document frame), so
+  the whole theme is resource-name overrides. This module declares the sdk-api AAR
+  as a dependency, so it is merged at a higher priority and a name declared here
+  replaces the SDK's.
+
+  A name the SDK does not declare is a silent no-op, so every name below was checked
+  against res/values/values.xml of the extracted sdk-api 9.1.0 AAR (457 colours).
+
+  The SDK's palette is 37 literal colours and ~420 aliases pointing at them. The
+  first block repaints the roots and reaches most screens through the aliases; the
+  per-screen names after it are only the places where the cascade lands wrong.
 -->
 <resources>
+
+	<!-- ==================== Roots ==================== -->
+
 	<color name="idenfyBackgroundColorV2">#090710</color>
 	<color name="idenfyMainColorV2">#E1BE6B</color>
+	<!-- iDenfy uses "darker" as a second accent, never as a shade of the main one.
+	     Gold, like the main colour. Note that idenfyStepSuccessColorV2 aliases to
+	     this on Android, so the success colour is pinned separately below. -->
 	<color name="idenfyMainDarkerColorV2">#E1BE6B</color>
-	<color name="idenfyGradientAccentV2">#E1BE6B</color>
 	<color name="idenfyMainColor50percentV2">#80E1BE6B</color>
 
 	<color name="idenfySecondColorV2">#FAFAFA</color>
-	<color name="idenfySecondColor6percentV2">#0FFAFAFA</color>
-	<color name="idenfySecondColor20percentV2">#33FAFAFA</color>
-	<color name="idenfySecondColor50percentV2">#80FAFAFA</color>
 	<color name="idenfySecondColor80percentV2">#CCFAFAFA</color>
+	<color name="idenfySecondColor50percentV2">#80FAFAFA</color>
+	<color name="idenfySecondColor20percentV2">#33FAFAFA</color>
+	<color name="idenfySecondColor6percentV2">#0FFAFAFA</color>
 
+	<!-- iOS remaps idenfyBlackV2 to the foreground because it paints content drawn
+	     on light surfaces. On Android its only consumers are the splash title,
+	     description and spinner, so the remap is safe and does the same job. -->
+	<color name="idenfyBlackV2">#FAFAFA</color>
+
+	<!-- idenfyBlack is deliberately NOT overridden, unlike iOS. On Android it is the
+	     camera preview background (document and face capture); repainting it light
+	     would put a white sheet behind the viewfinder. Its two text consumers are
+	     handled by name under "App bars". -->
+
+	<!-- idenfyWhite is deliberately NOT overridden either. 86 names alias to it, and
+	     they split into two irreconcilable groups: labels on our white buttons, which
+	     must go dark, and text and icons drawn over the camera feed, which must stay
+	     white. Both groups are set by name below. -->
+
+	<!-- iOS gives idenfyLightGrayColor the translucent card (white 5%). Opaque here:
+	     on Android this colour also backs the instruction card that floats over the
+	     live camera, and a 5% wash there leaves the hint text sitting on the video.
+	     The in-page privacy card gets the translucent value by name instead. -->
 	<color name="idenfyLightGrayColor">#1C1C1E</color>
-	<color name="idenfyInactiveColorV2">#1C1C1E</color>
-	<color name="idenfyPhotoResultDetailsCardBackgroundColorV2">#1C1C1E</color>
+
+	<!-- No resource consumer; referenced from code only. Kept dark so it cannot
+	     surface as the SDK's light grey. -->
+	<color name="idenfyInactiveColorV2">#1FFFFFFF</color>
+
 	<color name="idenfyLivenessBackgroundColor">#090710</color>
+	<color name="idenfyPhotoResultDetailsCardBackgroundColorV2">#0DFFFFFF</color>
+
+	<!-- Primary buttons are a two-stop gradient. Both stops go to the app's white
+	     primary fill, which flattens it to a solid. -->
+	<color name="idenfyGradientButtonColorStart">#FAFAFA</color>
+	<color name="idenfyGradientButtonColorEnd">#FAFAFA</color>
+
+	<!-- ==================== Status tints ==================== -->
+	<!-- Every "light" default is a light-mode pastel (#FFEBEE, #FFF3E0, #E8F5E9)
+	     that reads as a glaring near-white block on our background. Swapped for 12%
+	     washes of the app's semantic colours, the way our own cards do it. -->
 
 	<color name="idenfyStepSuccessColorV2">#16A34A</color>
+	<color name="idenfyBorderGreenV2">#16A34A</color>
+	<color name="idenfyBackgroundGreenV2">#1F16A34A</color>
 	<color name="idenfyStepErrorColorV2">#EF4444</color>
 	<color name="idenfyRedColorV2">#EF4444</color>
 	<color name="idenfyErrorRedColorV2">#EF4444</color>
+	<color name="idenfyErrorLightRedColorV2">#1FEF4444</color>
+	<color name="idenfyWarningYellowV2">#E7B008</color>
+	<color name="idenfyWarningLightYellowV2">#1FE7B008</color>
+	<color name="idenfyBlueColor">#3B82F6</color>
+	<color name="idenfyLightBlueColor">#1F3B82F6</color>
 
-	<color name="idenfyGradientButtonColorStart">#FAFAFA</color>
-	<color name="idenfyGradientButtonColorEnd">#FAFAFA</color>
+	<!-- Face oval feedback during capture: detected goes to our green, not detected
+	     to the disabled foreground. -->
+	<color name="idenfyGreenColorV2">#16A34A</color>
+	<color name="idenfyGrayColorV2">#66FFFFFF</color>
+
+	<!-- iDenfy purple survives in a few highlight states. Fold it into gold. -->
+	<color name="idenfyPurpleColor">#E1BE6B</color>
+	<color name="idenfyPurpleBackgroundColor">#E1BE6B</color>
+	<color name="idenfyPurpleTextColor">#090710</color>
+
+	<!-- ==================== App bars ==================== -->
 
 	<color name="idenfyDefaultAppBarBackgroundColor">#090710</color>
 	<color name="idenfyNoBackButtonAppBarBackgroundColor">#090710</color>
 	<color name="idenfyPhotoResultAppBarBackgroundColor">#090710</color>
+	<!-- The two consumers of idenfyBlack that are text, not a camera backdrop. -->
+	<color name="idenfyCameraPreviewSessionAppBarBackButtonTextColor">#FAFAFA</color>
+	<color name="idenfyPhotoResultAppBarBackButtonTextColor">#FAFAFA</color>
 
-	<color name="idenfyCountryAndDocumentSelectionViewItemSelectionHighlightedTextColor">#090710</color>
-	<color name="idenfyDocumentSelectionViewRecyclerViewItemHighlightedTextColor">#090710</color>
-
-	<color name="idenfyPrivacyPolicyCardViewBackgroundColor">#1C1C1E</color>
+	<!-- ==================== Primary button labels ==================== -->
+	<!-- The fill is white, so every label and in-button spinner has to be dark. Left
+	     at the SDK's default these are white on white: invisible, not just off-tone. -->
 
 	<color name="idenfyPrivacyPolicyContinueButtonTextColor">#090710</color>
 	<color name="idenfyCountryAndDocumentSelectionViewContinueButtonEnabledTextColor">#090710</color>
 	<color name="idenfyDocumentSelectionViewContinueButtonEnabledTextColor">#090710</color>
+	<color name="idenfyCameraStaticOnBoardingViewEnabledButtonTitleColor">#090710</color>
 	<color name="idenfyDocumentPhotoResultViewNextButtonTextColor">#090710</color>
 	<color name="idenfyFacePhotoResultViewNextButtonTextColor">#090710</color>
 	<color name="idenfyUploadPhotoViewContinuePhotoButtonTextColor">#090710</color>
 	<color name="idenfyQuestionnaireViewContinueButtonEnabledTextColor">#090710</color>
 	<color name="idenfyIdentificationResultsViewRetakeButtonTextColor">#090710</color>
+	<color name="idenfyFaceAuthenticationResultsContinueButtonTextColor">#090710</color>
+	<color name="idenfyIdentificationSuspectedResultsViewContinueButtonTitleColor">#090710</color>
+	<color name="idenfyManualReviewingStatusApprovedContinueButtonTextColor">#090710</color>
+	<color name="idenfyManualReviewingStatusFailedContinueButtonTextColor">#090710</color>
+	<color name="idenfyManualReviewingStatusWaitingBackToAccountButtonTextColor">#090710</color>
+	<color name="idenfyCameraPermissionViewGoToSettingsButtonTextColor">#090710</color>
+	<color name="idenfyCountrySelectionViewPredefinedCountryContinueButtonTextColor">#090710</color>
+	<color name="idenfyNFCReadingTimeOutContinueButtonTextColor">#090710</color>
+	<color name="idenfyNFCRequiredContinueButtonTextColor">#090710</color>
+	<!-- In-flow alerts: document not found, MRZ, mismatch, instructions. -->
+	<color name="idenfyIdentificationResultsViewDocNotFoundAlertContinueButtonTextColorV2">#090710</color>
+	<color name="idenfyIdentificationResultsViewMrzNotFoundAlertContinueButtonTextColorV2">#090710</color>
+	<color name="idenfyIdentificationResultsViewMismatchTagsFoundAlertContinueButtonEnabledTextColorV2">#090710</color>
+	<color name="idenfyIdentificationResultsViewInstructionsAlertContinueButtonTextColorV2">#090710</color>
+
+	<!-- These two buttons are the only ones the SDK fills with the main colour rather
+	     than the gradient. Given white like the rest, so one primary reads the same
+	     everywhere and gold stays an accent. -->
+	<color name="idenfyIdentificationSuspectedResultsViewContinueButtonBackgroundColor">#FAFAFA</color>
+	<color name="idenfyManualReviewingStatusWaitingBackToAccountButtonBackgroundColor">#FAFAFA</color>
+
+	<!-- Spinners inside a primary button, same problem as the labels. -->
+	<color name="idenfyPrivacyPolicyContinueButtonLoadingSpinnerTintColor">#090710</color>
+	<color name="idenfyCountryAndDocumentSelectionViewContinueButtonLoadingSpinnerTintColor">#090710</color>
+	<color name="idenfyDocumentSelectionViewLoadingSpinnerTintColor">#090710</color>
+	<color name="idenfyQuestionnaireViewLoadingSpinnerTintColor">#090710</color>
+	<!-- Spinners on a dark surface follow the app's loaders instead. -->
+	<color name="idenfyCountrySelectionViewCountryRecyclerViewItemLoadingSpinnerTintColor">#E1BE6B</color>
+	<color name="idenfySplashScreenViewLoadingSpinnerTintColor">#E1BE6B</color>
+
+	<!-- ==================== Secondary buttons ==================== -->
+	<!-- Retake a photo, choose another file. The grey fill comes from the
+	     idenfy_ic_retake_photo_button_v2 drawable override; the label is gold by
+	     default, which on that fill is the wrong weight for a secondary action. -->
+
+	<color name="idenfyDocumentPhotoResultViewRetakePhotoButtonTextColor">#FAFAFA</color>
+	<color name="idenfyFacePhotoResultViewRetakePhotoButtonTextColor">#FAFAFA</color>
+	<color name="idenfyUploadPhotoViewChooseAnotherPhotoButtonTextColor">#FAFAFA</color>
+	<color name="idenfyIdentificationResultsViewMrzNotFoundAlertBackButtonTextColorV2">#FAFAFA</color>
+
+	<!-- ==================== Disabled buttons ==================== -->
+	<!-- iDenfy's default is a white 20% block with white 50% text, heavier than ours.
+	     The percent tokens above keep the SDK's own scale; these are the app's:
+	     white 12% fill, white 40% label. -->
+
+	<color name="idenfyCountryAndDocumentSelectionViewContinueButtonDisabledBackgroundColor">#1FFFFFFF</color>
+	<color name="idenfyCountryAndDocumentSelectionViewContinueButtonDisabledTextColor">#66FFFFFF</color>
+	<color name="idenfyDocumentSelectionViewContinueButtonDisabledBackgroundColor">#1FFFFFFF</color>
+	<color name="idenfyDocumentSelectionViewContinueButtonDisabledTextColor">#66FFFFFF</color>
+	<color name="idenfyCameraStaticOnBoardingViewDisabledButtonBackgroundColor">#1FFFFFFF</color>
+	<color name="idenfyCameraStaticOnBoardingViewDisabledButtonTitleColor">#66FFFFFF</color>
+	<color name="idenfyQuestionnaireViewContinueButtonDisabledBackgroundColor">#1FFFFFFF</color>
+	<color name="idenfyQuestionnaireViewContinueButtonDisabledTextColor">#66FFFFFF</color>
+	<color name="idenfyIdentificationResultsViewMismatchTagsFoundAlertContinueButtonDisabledBackgroundColorV2">#1FFFFFFF</color>
+	<color name="idenfyIdentificationResultsViewMismatchTagsFoundAlertContinueButtonDisabledTextColorV2">#66FFFFFF</color>
+
+	<!-- ==================== Cards and panels ==================== -->
+
+	<color name="idenfyPrivacyPolicyCardViewBackgroundColor">#0DFFFFFF</color>
+	<!-- The plate behind the cropping view. Defaults to the foreground colour, which
+	     after the palette swap is a full-width white block. -->
+	<color name="idenfyUploadPhotoViewCroppingBackgroundColor">#0DFFFFFF</color>
+	<!-- Questionnaire inputs default to a white box. No iOS counterpart: the iOS SDK
+	     does not expose this one, so it is a divergence Android can fix and iOS cannot. -->
+	<color name="idenfyQuestionnaireViewTextQuestionItemEditTextBackgroundColor">#0DFFFFFF</color>
+
+	<!-- Manual review, the "waiting" screen. The finished box is filled with the main
+	     colour, so its tick and title go dark like any other gold-filled surface. -->
+	<color name="idenfyManualReviewingStatusWaitingCommonReviewBoxWaitingBackgroundColor">#0DFFFFFF</color>
+	<color name="idenfyManualReviewingStatusWaitingCommonReviewBoxFinishedTitleColor">#090710</color>
+	<color name="idenfyManualReviewingStatusWaitingCommonReviewBoxFinishedTickImageTintColor">#090710</color>
+
+	<!-- ==================== Country and document selection ==================== -->
+	<!-- Unselected chips and the country field default to white cards with
+	     near-invisible text; the country field looked disabled. Borderless dark
+	     surfaces, hairline border, and the selected one reads as our primary button. -->
+
+	<color name="idenfyCountryAndDocumentSelectionViewItemSelectionBackgroundColor">#0DFFFFFF</color>
+	<color name="idenfyCountryAndDocumentSelectionViewItemSelectionBorderColor">#1AFFFFFF</color>
+	<color name="idenfyCountryAndDocumentSelectionViewItemSelectionHighlightedBackgroundColor">#FAFAFA</color>
+	<color name="idenfyCountryAndDocumentSelectionViewItemSelectionHighlightedTextColor">#090710</color>
+	<!-- The selected card draws a border with no width knob, so it is matched to the
+	     fill and the shape carries the state. -->
+	<color name="idenfyCountryAndDocumentSelectionViewItemSelectionHighlightedBorderColor">#FAFAFA</color>
+
+	<!-- ==================== Full-screen picker lists ==================== -->
+	<!-- Language and document country. Both default to a white panel with grey text.
+	     Dark lists matching the app bar, gold fill with a dark label on the selected
+	     row. The SDK fakes each border with a solid layer behind the row, so the
+	     "border" colours below are the app's hairline, not a stroke. -->
+
+	<color name="idenfyLanguageSelectionViewLanguageRecyclerViewBackgroundColor">#090710</color>
+	<color name="idenfyLanguageSelectionViewLanguageRecyclerViewItemBackgroundColor">#090710</color>
+	<color name="idenfyLanguageSelectionViewLanguageRecyclerViewItemHighlightedTextColor">#090710</color>
+	<color name="idenfyLanguageSelectionViewLanguageRecyclerViewBorderColor">#1AFFFFFF</color>
+	<color name="idenfyLanguageSelectionViewLanguageRecyclerViewItemBorderColor">#1AFFFFFF</color>
+
+	<color name="idenfyCountrySelectionViewCountryRecyclerViewItemBackgroundColor">#090710</color>
+	<color name="idenfyCountrySelectionViewCountryRecyclerViewItemHighlightedTextColor">#090710</color>
+	<color name="idenfyCountrySelectionViewCountryRecyclerViewBorderColor">#1AFFFFFF</color>
+	<color name="idenfyCountrySelectionViewCountryRecyclerViewItemBorderColor">#1AFFFFFF</color>
+
+	<color name="idenfyDocumentSelectionViewRecyclerViewItemBackgroundColor">#090710</color>
+	<color name="idenfyDocumentSelectionViewRecyclerViewItemHighlightedTextColor">#090710</color>
+	<color name="idenfyDocumentSelectionViewRecyclerViewBorderColor">#1AFFFFFF</color>
+	<color name="idenfyDocumentSelectionViewRecyclerViewItemBorderColor">#1AFFFFFF</color>
+
+	<!-- Search field at the top of the country list: default white box, and its typed
+	     text defaults to 50% so it read as a placeholder even once filled in. -->
+	<color name="idenfyCountrySelectionViewCountrySearchBarBackgroundColor">#0DFFFFFF</color>
+	<color name="idenfyCountrySelectionViewCountrySearchBarTextColor">#FAFAFA</color>
+	<color name="idenfyCountryViewSelectionCountrySearchBarBorderColor">#1AFFFFFF</color>
+
 </resources>

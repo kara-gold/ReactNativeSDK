@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Kara: the secondary button (retake a photo, choose another file). The SDK ships
+     it as a near-white rounded rect with a 2px stroke in the main colour, which after
+     the palette swap is a white button with a gold outline: a second primary, next to
+     the real one.
+
+     Repainted as the app's grey secondary: solid #262626, no outline, and the label
+     turned white in colors.xml. This is the surface iOS could only reach by walking
+     the view tree at runtime (KaraIdenfyTheme.styleSecondaryButton); on Android it is
+     one asset.
+
+     Geometry: the viewport is the SDK's 300x42 and the ImageView is 42dp tall with
+     scaleType fitXY, so a 21 radius is a full pill at 1:1 vertical scale. The caps
+     stretch with the button width, exactly as the SDK's own 4dp corners already do. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="300dp"
+    android:height="42dp"
+    android:viewportWidth="300"
+    android:viewportHeight="42">
+    <path
+        android:fillColor="#262626"
+        android:pathData="M21,0L279,0A21,21 0,0 1,279 42L21,42A21,21 0,0 1,21 0z" />
+</vector>

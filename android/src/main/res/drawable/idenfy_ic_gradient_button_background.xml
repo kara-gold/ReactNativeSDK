@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Kara: the enabled primary button. Both gradient stops resolve to the app's white
+     fill through colors.xml, so the gradient is kept only because the SDK's shape is
+     declared that way, not because it renders as one.
+
+     The radius is the one piece of geometry the SDK exposes as a resource: iDenfy's
+     29 dimens hold no corner radii, and the rest of its rounding is hardcoded in
+     shape drawables like this one. 21dp is half the 42dp button height the layouts
+     pin, so it is a full pill, matching `rounded-full` on our own Button. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+
+    <gradient
+        android:angle="0"
+        android:endColor="@color/idenfyGradientButtonColorEnd"
+        android:startColor="@color/idenfyGradientButtonColorStart"
+        android:type="linear" />
+
+    <corners android:radius="21dp" />
+
+</shape>
