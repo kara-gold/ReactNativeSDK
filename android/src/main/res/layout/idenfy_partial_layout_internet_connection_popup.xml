@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The app runs its own connectivity monitor and shows its own offline banner, so
+  iDenfy's duplicate would stack a second, differently-worded one on top. iOS
+  paints it out through the settings API; Android has no such property (the
+  banner reuses `idenfyErrorRedColorV2`, shared with every other error surface),
+  so the layout itself is overridden.
+
+  Every view id of the original is kept: the SDK resolves them with findViewById
+  and a missing one is a crash, not a blank banner. Only the geometry and the
+  colours are neutralised.
+
+  The root must also stop being clickable. It is match_parent and, once the SDK
+  makes it visible, an invisible-but-clickable overlay would swallow every touch
+  on the screen underneath.
+-->
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/internet_connection_view"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:visibility="invisible"
+    android:elevation="0dp"
+    android:focusable="false"
+    android:clickable="false"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/internet_connection_popup"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:cardBackgroundColor="@android:color/transparent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:id="@+id/idenfy_iv_internet_connection_lost"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginStart="24dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintDimensionRatio="w,1:1"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/idenfy_ic_internet_connection_lost" />
+
+            <com.idenfy.idenfySdk.uicomponents.IDenfyTextView
+                android:id="@+id/idenfy_tv_internet_connection_lost"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginStart="24dp"
+                android:layout_marginEnd="16dp"
+                android:gravity="center_vertical"
+                android:text="@string/idenfy_internet_connection_lost_title"
+                android:textColor="@color/idenfyWhite"
+                android:textSize="14sp"
+                app:customfont="hkgrotesk_bold.ttf"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toEndOf="@+id/idenfy_iv_internet_connection_lost"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -89,9 +89,14 @@
 	<color name="idenfyGreenColorV2">#16A34A</color>
 	<color name="idenfyGrayColorV2">#66FFFFFF</color>
 
-	<!-- iDenfy purple survives in a few highlight states. Fold it into gold. -->
+	<!-- iDenfy purple survives in a few highlight states. Fold it into gold, except for
+	     the purple FILL: its only live consumer is the large email/SMS "verify" panel
+	     (the country and document chip overrides its highlight directly), and a gold
+	     slab that size carrying a gold icon left both invisible. A dark card there lets
+	     the gold border and gold icon read as accents, which is how gold is used
+	     everywhere else in this theme. -->
 	<color name="idenfyPurpleColor">#E1BE6B</color>
-	<color name="idenfyPurpleBackgroundColor">#E1BE6B</color>
+	<color name="idenfyPurpleBackgroundColor">#0DFFFFFF</color>
 	<color name="idenfyPurpleTextColor">#090710</color>
 
 	<!-- ==================== App bars ==================== -->
@@ -228,5 +233,59 @@
 	<color name="idenfyCountrySelectionViewCountrySearchBarBackgroundColor">#0DFFFFFF</color>
 	<color name="idenfyCountrySelectionViewCountrySearchBarTextColor">#FAFAFA</color>
 	<color name="idenfyCountryViewSelectionCountrySearchBarBorderColor">#1AFFFFFF</color>
+
+	<!-- =============================================================================
+	     Contrast sweep
+	     =============================================================================
+	     Everything below closes white-on-white (and its mirror) on screens outside the
+	     document + face flow. All of it is OUR regression, not an SDK defect: iDenfy's
+	     primary button was indigo #536DFE, so its white label was readable. Making the
+	     button white left the label white on white.
+
+	     Found by resolving every label/fill pair in the SDK's 115 layouts against the
+	     LINKED resource table and scoring WCAG contrast; each name below measured below
+	     3:1 before the change. The iDenfy products these belong to (bank verification,
+	     eID, MFA, provider login, email/SMS OTP) are almost certainly not enabled on our
+	     account, but the fix is one line each and a white-on-white button is the single
+	     worst failure this theme can produce. -->
+
+	<!-- Labels and in-button spinners on the white primary. -->
+	<color name="idenfyAdditionalSupportContinueButtonTextColor">#090710</color>
+	<color name="idenfyBankVerificationContinueButtonTextColor">#090710</color>
+	<color name="idenfyBankVerificationContinueButtonEnabledTextColor">#090710</color>
+	<color name="idenfyBankVerificationViewContinueButtonLoadingSpinnerTintColor">#090710</color>
+	<color name="idenfyEIDSessionViewButtonTextColor">#090710</color>
+	<color name="idenfyEIDSessionViewContinueButtonEnabledTextColor">#090710</color>
+	<color name="idenfyEIDSessionViewButtonLoadingSpinnerTintColor">#090710</color>
+	<color name="idenfyEmailSMSVerificationContinueButtonTextColor">#090710</color>
+	<color name="idenfyEmailSMSVerificationContinueButtonEnabledTextColor">#090710</color>
+	<color name="idenfyEmailSMSVerificationContinueButtonLoadingSpinnerTintColor">#090710</color>
+	<color name="idenfyMFACaptchaMethodViewContinueButtonTextColor">#090710</color>
+	<color name="idenfyMFACaptchaMethodViewContinueButtonLoadingSpinnerColor">#090710</color>
+	<color name="idenfyMFAGeneralViewContinueButtonTextColor">#090710</color>
+	<color name="idenfyMFAGeneralViewContinueButtonLoadingSpinnerTintColor">#090710</color>
+	<color name="idenfyMFAMethodSelectionViewContinueButtonTextColor">#090710</color>
+	<color name="idenfyMFAMethodSelectionViewContinueButtonLoadingSpinnerTintColor">#090710</color>
+	<color name="idenfyProviderLoginViewContinueButtonTextColor">#090710</color>
+	<color name="idenfyProviderLoginViewContinueButtonLoadingSpinnerTintColor">#090710</color>
+
+	<!-- Fields and rows still painted idenfyWhite. Here the defect is the fill, not the
+	     label: darkening the surface fixes the title, the trailing icon, the floating
+	     hint and the row spinner in one move, and keeps these screens in the same visual
+	     language as the country search field. -->
+	<color name="idenfyBankVerificationViewItemSelectionBackgroundColor">#0DFFFFFF</color>
+	<color name="idenfyBankVerificationViewBanksRecyclerViewItemBackgroundColor">#090710</color>
+	<color name="idenfyMFACaptchaMethodViewCaptchaEditTextBackgroundColor">#0DFFFFFF</color>
+	<color name="idenfyMFAGeneralViewEditTextBackgroundColor">#0DFFFFFF</color>
+	<color name="idenfyProviderLoginViewUsernameAndPasswordEditTextBackgroundColor">#0DFFFFFF</color>
+	<color name="idenfyProviderSelectionViewProviderRecyclerViewItemBackgroundColor">#090710</color>
+	<color name="idenfyProviderSelectionViewProviderSearchBarBackgroundColor">#0DFFFFFF</color>
+	<color name="idenfyProviderSelectionViewProviderSearchBarTextColor">#FAFAFA</color>
+	<color name="idenfyEmailSMSVerificationEmailSMSInputEditTextBackgroundColor">#0DFFFFFF</color>
+	<!-- Selected row, gold fill: same dark label as the country and language lists. -->
+	<color name="idenfyProviderSelectionViewProviderRecyclerViewItemHighlightedTextColor">#090710</color>
+
+	<!-- The email/SMS "verify" panel is fixed at its root, idenfyPurpleBackgroundColor,
+	     up in the status tints. -->
 
 </resources>

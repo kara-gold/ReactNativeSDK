@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Two label colours the SDK hardcodes in a <style> rather than behind a colour name,
+  so colors.xml cannot reach them.
+
+  Both are on the document camera screen and both resolve to @color/idenfyBlack. That
+  root is deliberately left at #000000 in colors.xml, because on Android it is also the
+  camera preview background: repainting it would put a white sheet behind the
+  viewfinder. So the two labels that are NOT a camera backdrop are redirected here
+  instead.
+
+  Style overrides replace the SDK's definition wholesale, so the parent and the text
+  size are carried over verbatim from sdk-api 9.1.0.
+
+  Note for whoever owns the connectivity popups: idenfyInternetStabilityPopupTitleStyle
+  is the third style pointing at idenfyBlack. It is left alone on purpose, since the
+  popup layout overrides paint that card transparent and a black-on-black title is the
+  intended outcome there.
+-->
+<resources>
+
+	<!-- "Accepted documents" sheet over the camera. Sits on idenfyLightGrayColor,
+	     which is our opaque dark panel, so the title takes the foreground. -->
+	<style name="idenfyDocumentCameraAcceptedDocumentsAlertTitleStyle" parent="android:Widget.TextView">
+		<item name="android:textColor">@color/idenfySecondColorV2</item>
+		<item name="android:textSize">13sp</item>
+	</style>
+
+	<!-- Capture warning over the camera. Its card is a 12% amber wash, so the title
+	     takes the warning colour itself, matching the blur/glare card on the photo
+	     result screen. -->
+	<style name="idenfyDocumentCameraWarningAlertTitleStyle" parent="android:Widget.TextView">
+		<item name="android:textColor">@color/idenfyWarningYellowV2</item>
+		<item name="android:textSize">13sp</item>
+	</style>
+
+</resources>
