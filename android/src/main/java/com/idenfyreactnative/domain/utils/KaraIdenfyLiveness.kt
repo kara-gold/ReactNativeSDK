@@ -10,6 +10,7 @@ import com.facetec.sdk.FaceTecGuidanceCustomization
 import com.facetec.sdk.FaceTecOvalCustomization
 import com.facetec.sdk.FaceTecOverlayCustomization
 import com.facetec.sdk.FaceTecResultScreenCustomization
+import com.facetec.sdk.FaceTecSDK
 import com.idenfy.idenfySdk.api.liveliness.IdenfyLivenessUISettings
 import com.idenfyreactnative.R
 
@@ -59,6 +60,18 @@ import com.idenfyreactnative.R
  * Intent, no extras. If a future SDK version starts passing settings through the
  * Intent, this object is dropped silently and the theme reverts to the resource
  * pass. Nothing crashes; it just stops applying.
+ *
+ * ## Low-light mode and the light variant
+ *
+ * FaceTec measures ambient light and, in low light, turns the screen into a
+ * fill light for the face: its sanitizer (ey.a(int) in the repackaged 7.0.3)
+ * forces every session background to opaque white, and no API disables that.
+ * Text, button and oval colours are NOT sanitized: the selector (ey.a()) reads
+ * them from the customization registered via FaceTecSDK.setLowLightCustomization
+ * when one exists, else from the normal customization. iDenfy never registers
+ * one, so before lowLight() below a dark room meant near-white text and button
+ * on the forced white background. settings() registers the light variant so
+ * both modes stay legible.
  */
 internal object KaraIdenfyLiveness {
 
@@ -82,6 +95,12 @@ internal object KaraIdenfyLiveness {
 	private const val DISABLED_TEXT = 0x66FFFFFF
 	private const val TRACK = 0x1FFFFFFF
 
+	/** For the low-light variant, where the sanitizer forces this anyway. */
+	private const val WHITE = 0xFFFFFFFF.toInt()
+	private const val LIGHT_DISABLED_FILL = 0x14090710
+	private const val LIGHT_DISABLED_TEXT = 0x66090710
+	private const val LIGHT_TRACK = 0x1F090710
+
 	/** `rounded-2xl` for plates, a pill for the CTA. */
 	private const val PLATE_RADIUS = 16
 	private const val BUTTON_RADIUS = 24
@@ -91,10 +110,15 @@ internal object KaraIdenfyLiveness {
 	 *   assets. Everything else is pure data. When it is null the colours still
 	 *   apply and FaceTec keeps its own typeface.
 	 */
-	fun settings(context: Context?): IdenfyLivenessUISettings =
-		IdenfyLivenessUISettings().apply {
+	fun settings(context: Context?): IdenfyLivenessUISettings {
+		// Static on FaceTec, set once; nothing in the SDK writes it afterwards
+		// (verified in the 7.0.3 bytecode). Without it, low-light mode keeps the
+		// dark variant's near-white text on its forced white background.
+		FaceTecSDK.setLowLightCustomization(lowLight(context))
+		return IdenfyLivenessUISettings().apply {
 			livenessCustomUISettings = customization(context)
 		}
+	}
 
 	private fun customization(context: Context?): FaceTecCustomization {
 		// The SDK ships these under HK Grotesk's filenames; our module overrides the
@@ -103,14 +127,11 @@ internal object KaraIdenfyLiveness {
 		val regular = font(context, "hkgrotesk_regular.ttf")
 
 		val guidance = FaceTecGuidanceCustomization().apply {
-			// Set, but PROVEN NOT TO REACH the ready screen: on a Pixel 9a carrying this
-			// object the guidance screen renders FaceTec's default -1 (opaque white)
-			// while foregroundColor below, the oval stroke and the overlay branding all
-			// applied. So the object arrives and this one field is ignored. FaceTec's
-			// public Android API types backgroundColors as int[] (a gradient); this
-			// repackaged 7.0.3 exposes a bare int and evidently paints the guidance
-			// panel from something else. Left in place because it is harmless and is
-			// the documented field; the legibility fix is the text plate below.
+			// Honoured in normal light. The white background an earlier Pixel 9a test
+			// observed was not this field being ignored: the test ran in a dark room,
+			// where FaceTec's low-light sanitizer forces every session background to
+			// opaque white regardless of any customization. Legibility in that mode
+			// comes from the lowLight() variant, not from this field.
 			backgroundColors = BACKGROUND
 			foregroundColor = FOREGROUND
 			// iOS sets this to the dark on-button colour. Not mirrored: on Android
@@ -121,10 +142,10 @@ internal object KaraIdenfyLiveness {
 			readyScreenSubtextTextColor = FOREGROUND
 			retryScreenHeaderTextColor = FOREGROUND
 			retryScreenSubtextTextColor = FOREGROUND
-			// A dark plate behind the ready-screen copy, deliberately NOT transparent as
-			// it was. Since backgroundColors does not reach this screen, the copy would
-			// otherwise keep landing as near-white text on FaceTec's white default. This
-			// plate makes it legible whichever colour ends up behind it.
+			// A dark plate behind the ready-screen copy. In normal light it blends into
+			// the identical background; kept so the copy stays legible whichever colour
+			// ends up behind it. The low-light variant drops it: dark text sits
+			// directly on the forced white there.
 			readyScreenTextBackgroundColor = BACKGROUND
 			readyScreenTextBackgroundCornerRadius = PLATE_RADIUS
 
@@ -153,14 +174,6 @@ internal object KaraIdenfyLiveness {
 			buttonFont = bold
 		}
 
-		val oval = FaceTecOvalCustomization().apply {
-			strokeColor = GOLD
-			strokeWidth = 2
-			progressColor1 = GOLD
-			progressColor2 = GOLD
-			progressRadialOffset = 6
-		}
-
 		val frame = FaceTecFrameCustomization().apply {
 			backgroundColor = BACKGROUND
 			// Borderless: the frame is the full-bleed session container, and a visible
@@ -168,13 +181,6 @@ internal object KaraIdenfyLiveness {
 			borderColor = BACKGROUND
 			borderWidth = 0
 			cornerRadius = 0
-		}
-
-		val feedback = FaceTecFeedbackCustomization().apply {
-			backgroundColors = OVER_CAMERA
-			textColor = FOREGROUND
-			cornerRadius = PLATE_RADIUS
-			textFont = bold
 		}
 
 		val result = FaceTecResultScreenCustomization().apply {
@@ -214,14 +220,118 @@ internal object KaraIdenfyLiveness {
 
 		return FaceTecCustomization().apply {
 			guidanceCustomization = guidance
-			ovalCustomization = oval
+			ovalCustomization = oval()
 			frameCustomization = frame
-			feedbackCustomization = feedback
+			feedbackCustomization = feedback(bold)
 			resultScreenCustomization = result
 			overlayCustomization = overlay
 			cancelButtonCustomization = cancel
 		}
 	}
+
+	/**
+	 * The variant FaceTec switches to in low ambient light, where its sanitizer
+	 * forces every session background to opaque white so the screen can light the
+	 * face. Designed for that forced white: dark text, inverted button, no text
+	 * plate. Oval and feedback are shared with the dark variant; the feedback bar
+	 * sits over the camera feed, not over the white.
+	 */
+	private fun lowLight(context: Context?): FaceTecCustomization {
+		val bold = font(context, "hkgrotesk_bold.ttf")
+		val regular = font(context, "hkgrotesk_regular.ttf")
+
+		val guidance = FaceTecGuidanceCustomization().apply {
+			foregroundColor = ON_LIGHT
+			readyScreenHeaderTextColor = ON_LIGHT
+			readyScreenSubtextTextColor = ON_LIGHT
+			retryScreenHeaderTextColor = ON_LIGHT
+			retryScreenSubtextTextColor = ON_LIGHT
+			// No plate: dark text sits directly on the forced white.
+			readyScreenTextBackgroundColor = TRANSPARENT
+
+			// The dark variant's button, inverted: dark fill, light label.
+			buttonBackgroundNormalColor = BACKGROUND
+			buttonTextNormalColor = FOREGROUND
+			buttonBackgroundHighlightColor = GOLD
+			buttonTextHighlightColor = ON_LIGHT
+			buttonBackgroundDisabledColor = LIGHT_DISABLED_FILL
+			buttonTextDisabledColor = LIGHT_DISABLED_TEXT
+			buttonBorderColor = TRANSPARENT
+			buttonBorderWidth = 0
+			buttonCornerRadius = BUTTON_RADIUS
+
+			retryScreenImageBorderColor = GOLD
+			retryScreenOvalStrokeColor = GOLD
+
+			headerFont = bold
+			subtextFont = regular
+			readyScreenHeaderFont = bold
+			readyScreenSubtextFont = regular
+			buttonFont = bold
+		}
+
+		val frame = FaceTecFrameCustomization().apply {
+			// The sanitizer forces this to white anyway; set for coherence.
+			backgroundColor = WHITE
+			borderColor = WHITE
+			borderWidth = 0
+			cornerRadius = 0
+		}
+
+		val result = FaceTecResultScreenCustomization().apply {
+			backgroundColors = WHITE
+			foregroundColor = ON_LIGHT
+			activityIndicatorColor = GOLD
+			showUploadProgressBar = true
+			uploadProgressFillColor = GOLD
+			uploadProgressTrackColor = LIGHT_TRACK
+			resultAnimationBackgroundColor = WHITE
+			resultAnimationForegroundColor = GOLD
+			resultAnimationUnsuccessBackgroundColor = WHITE
+			resultAnimationUnsuccessForegroundColor = ERROR
+			sessionAbortAnimationBackgroundColor = WHITE
+			sessionAbortAnimationForegroundColor = ON_LIGHT
+			messageFont = bold
+		}
+
+		val overlay = FaceTecOverlayCustomization().apply {
+			backgroundColor = WHITE
+			showBrandingImage = false
+		}
+
+		// Not the shared idenfy_ic_liveliness_camera_session_cancel_image_v2
+		// override: that X is near-white and vanishes on the forced white.
+		val cancel = FaceTecCancelButtonCustomization().apply {
+			customImage = R.drawable.kara_ft_cancel_dark
+		}
+
+		return FaceTecCustomization().apply {
+			guidanceCustomization = guidance
+			ovalCustomization = oval()
+			frameCustomization = frame
+			feedbackCustomization = feedback(bold)
+			resultScreenCustomization = result
+			overlayCustomization = overlay
+			cancelButtonCustomization = cancel
+		}
+	}
+
+	private fun oval(): FaceTecOvalCustomization =
+		FaceTecOvalCustomization().apply {
+			strokeColor = GOLD
+			strokeWidth = 2
+			progressColor1 = GOLD
+			progressColor2 = GOLD
+			progressRadialOffset = 6
+		}
+
+	private fun feedback(bold: Typeface?): FaceTecFeedbackCustomization =
+		FaceTecFeedbackCustomization().apply {
+			backgroundColors = OVER_CAMERA
+			textColor = FOREGROUND
+			cornerRadius = PLATE_RADIUS
+			textFont = bold
+		}
 
 	// Asset lookup is a system boundary and a missing font must not take down a
 	// verification: FaceTec's own typeface is a fine fallback.
