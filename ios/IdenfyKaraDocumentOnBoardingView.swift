@@ -76,7 +76,7 @@ final class KaraIdenfyDocumentOnBoardingView: StaticCameraOnBoardingViewV2 {
 		let label = UILabel()
 		label.text = text
 		label.font = UIFont(name: ConstsIdenfyFonts.idenfyFontRegularV2, size: 13)
-		label.textColor = UIColor.white.withAlphaComponent(0.6)
+		label.textColor = KaraIdenfyTheme.textSecondary
 		label.textAlignment = .center
 		label.numberOfLines = 0
 		label.translatesAutoresizingMaskIntoConstraints = false

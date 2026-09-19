@@ -42,13 +42,13 @@ import com.idenfyreactnative.R
  * That default pass drives the entire palette from four colour resources, and two
  * of them are load-bearing in incompatible ways:
  *
- *   - idenfyFaceCameraPreviewSessionLivenessAccentColor (gold, for us) feeds the
+ *   - idenfyFaceCameraPreviewSessionLivenessAccentColor (our accent) feeds the
  *     oval progress AND the feedback bar background AND the ready-screen button
  *     fill AND the ready-screen text plate. One value cannot be both our accent
  *     and three surfaces behind text.
  *   - the result screen's background is never mapped at all, so it keeps
  *     FaceTecResultScreenCustomization's default of -1 (opaque white) while its
- *     foreground comes from idenfySecondColorV2 (#FAFAFA): white on white.
+ *     foreground comes from idenfySecondColorV2 (our light ink): light on white.
  *
  * ## Safety of the object graph
  *
@@ -75,12 +75,17 @@ import com.idenfyreactnative.R
  */
 internal object KaraIdenfyLiveness {
 
-	private const val BACKGROUND = 0xFF090710.toInt()
-	private const val GOLD = 0xFFE1BE6B.toInt()
-	private const val FOREGROUND = 0xFFFAFAFA.toInt()
-	private const val ON_LIGHT = 0xFF090710.toInt()
-	private const val BUTTON_FILL = 0xFFFAFAFA.toInt()
-	private const val ERROR = 0xFFEF4444.toInt()
+	// The Écrin tokens (apps/native/lib/theme-tokens.ts), mirroring
+	// res/values/colors.xml. Gold is the ready screen's button and nothing else:
+	// the scan itself has no action, the user holds still.
+	private const val BACKGROUND = 0xFF0F0C11.toInt() // canvas
+	private const val FOREGROUND = 0xFFF5EFE6.toInt() // ink
+	private const val MUTED = 0xFF85796C.toInt() // ink-3
+	private const val BRAND = 0xFFE8C47F.toInt()
+	private const val BRAND_PRESSED = 0xFFCFA75E.toInt()
+	private const val ON_BRAND = 0xFF241B0E.toInt()
+	private const val POSITIVE = 0xFF86C99A.toInt()
+	private const val ERROR = 0xFFF0907E.toInt() // negative
 	private const val TRANSPARENT = 0x00000000
 
 	/**
@@ -89,17 +94,22 @@ internal object KaraIdenfyLiveness {
 	 * text on the video. Same call, and same reason, as idenfyLightGrayColor in
 	 * res/values/colors.xml.
 	 */
-	private const val OVER_CAMERA = 0xFF1C1C1E.toInt()
+	private const val OVER_CAMERA = 0xFF1E1822.toInt() // surface-solid
 
-	private const val DISABLED_FILL = 0x1FFFFFFF
-	private const val DISABLED_TEXT = 0x66FFFFFF
-	private const val TRACK = 0x1FFFFFFF
+	private const val DISABLED_FILL = 0x0FF5EFE6 // surface
+	private const val DISABLED_TEXT = MUTED
+	private const val TRACK = 0x14F5EFE6 // tone-neutral
 
-	/** For the low-light variant, where the sanitizer forces this anyway. */
+	/**
+	 * For the low-light variant, where the sanitizer forces this anyway. Its ink is
+	 * the Écrin light-theme text, and its error the light-theme negative.
+	 */
 	private const val WHITE = 0xFFFFFFFF.toInt()
-	private const val LIGHT_DISABLED_FILL = 0x14090710
-	private const val LIGHT_DISABLED_TEXT = 0x66090710
-	private const val LIGHT_TRACK = 0x1F090710
+	private const val ON_LIGHT = 0xFF2A2015.toInt()
+	private const val LIGHT_ERROR = 0xFFB3261E.toInt()
+	private const val LIGHT_DISABLED_FILL = 0x0F2A2015
+	private const val LIGHT_DISABLED_TEXT = 0xFF917C5C.toInt()
+	private const val LIGHT_TRACK = 0x142A2015
 
 	/** `rounded-2xl` for plates, a pill for the CTA. */
 	private const val PLATE_RADIUS = 16
@@ -149,23 +159,25 @@ internal object KaraIdenfyLiveness {
 			readyScreenTextBackgroundColor = BACKGROUND
 			readyScreenTextBackgroundCornerRadius = PLATE_RADIUS
 
-			// The app's primary button. This is the pairing the resource route can
-			// never express: iDenfy exposes no button-label colour, so on that path
-			// the label stays FaceTec's hardcoded white (-1) and any light fill makes
-			// it vanish. Owning the FaceTecCustomization is what lets the fill be
-			// white and the label dark, as everywhere else in the flow.
-			buttonBackgroundNormalColor = BUTTON_FILL
-			buttonTextNormalColor = ON_LIGHT
-			buttonBackgroundHighlightColor = GOLD
-			buttonTextHighlightColor = ON_LIGHT
+			// The app's primary button, the one gold element of the face step. This
+			// is the pairing the resource route can never express: iDenfy exposes no
+			// button-label colour, so on that path the label stays FaceTec's
+			// hardcoded white (-1) and any light fill makes it vanish. Owning the
+			// FaceTecCustomization is what lets the fill be gold and the label dark,
+			// as everywhere else in the flow. A single colour here, so the flat brand
+			// gold rather than the gradient.
+			buttonBackgroundNormalColor = BRAND
+			buttonTextNormalColor = ON_BRAND
+			buttonBackgroundHighlightColor = BRAND_PRESSED
+			buttonTextHighlightColor = ON_BRAND
 			buttonBackgroundDisabledColor = DISABLED_FILL
 			buttonTextDisabledColor = DISABLED_TEXT
 			buttonBorderColor = TRANSPARENT
 			buttonBorderWidth = 0
 			buttonCornerRadius = BUTTON_RADIUS
 
-			retryScreenImageBorderColor = GOLD
-			retryScreenOvalStrokeColor = GOLD
+			retryScreenImageBorderColor = MUTED
+			retryScreenOvalStrokeColor = MUTED
 
 			headerFont = bold
 			subtextFont = regular
@@ -189,12 +201,12 @@ internal object KaraIdenfyLiveness {
 			// white sheet carrying near-white text in the middle of a dark flow.
 			backgroundColors = BACKGROUND
 			foregroundColor = FOREGROUND
-			activityIndicatorColor = GOLD
+			activityIndicatorColor = FOREGROUND
 			showUploadProgressBar = true
-			uploadProgressFillColor = GOLD
+			uploadProgressFillColor = FOREGROUND
 			uploadProgressTrackColor = TRACK
 			resultAnimationBackgroundColor = BACKGROUND
-			resultAnimationForegroundColor = GOLD
+			resultAnimationForegroundColor = POSITIVE
 			resultAnimationUnsuccessBackgroundColor = BACKGROUND
 			resultAnimationUnsuccessForegroundColor = ERROR
 			sessionAbortAnimationBackgroundColor = BACKGROUND
@@ -220,7 +232,7 @@ internal object KaraIdenfyLiveness {
 
 		return FaceTecCustomization().apply {
 			guidanceCustomization = guidance
-			ovalCustomization = oval()
+			ovalCustomization = oval(FOREGROUND)
 			frameCustomization = frame
 			feedbackCustomization = feedback(bold)
 			resultScreenCustomization = result
@@ -233,7 +245,8 @@ internal object KaraIdenfyLiveness {
 	 * The variant FaceTec switches to in low ambient light, where its sanitizer
 	 * forces every session background to opaque white so the screen can light the
 	 * face. Designed for that forced white: dark text, inverted button, no text
-	 * plate. Oval and feedback are shared with the dark variant; the feedback bar
+	 * plate. Feedback is shared with the dark variant, and the oval shape too (its
+	 * progress takes this variant's ink); the feedback bar
 	 * sits over the camera feed, not over the white.
 	 */
 	private fun lowLight(context: Context?): FaceTecCustomization {
@@ -249,19 +262,19 @@ internal object KaraIdenfyLiveness {
 			// No plate: dark text sits directly on the forced white.
 			readyScreenTextBackgroundColor = TRANSPARENT
 
-			// The dark variant's button, inverted: dark fill, light label.
-			buttonBackgroundNormalColor = BACKGROUND
-			buttonTextNormalColor = FOREGROUND
-			buttonBackgroundHighlightColor = GOLD
-			buttonTextHighlightColor = ON_LIGHT
+			// The same gold button as the dark variant: gold reads on white too.
+			buttonBackgroundNormalColor = BRAND
+			buttonTextNormalColor = ON_BRAND
+			buttonBackgroundHighlightColor = BRAND_PRESSED
+			buttonTextHighlightColor = ON_BRAND
 			buttonBackgroundDisabledColor = LIGHT_DISABLED_FILL
 			buttonTextDisabledColor = LIGHT_DISABLED_TEXT
 			buttonBorderColor = TRANSPARENT
 			buttonBorderWidth = 0
 			buttonCornerRadius = BUTTON_RADIUS
 
-			retryScreenImageBorderColor = GOLD
-			retryScreenOvalStrokeColor = GOLD
+			retryScreenImageBorderColor = ON_LIGHT
+			retryScreenOvalStrokeColor = ON_LIGHT
 
 			headerFont = bold
 			subtextFont = regular
@@ -281,14 +294,14 @@ internal object KaraIdenfyLiveness {
 		val result = FaceTecResultScreenCustomization().apply {
 			backgroundColors = WHITE
 			foregroundColor = ON_LIGHT
-			activityIndicatorColor = GOLD
+			activityIndicatorColor = ON_LIGHT
 			showUploadProgressBar = true
-			uploadProgressFillColor = GOLD
+			uploadProgressFillColor = ON_LIGHT
 			uploadProgressTrackColor = LIGHT_TRACK
 			resultAnimationBackgroundColor = WHITE
-			resultAnimationForegroundColor = GOLD
+			resultAnimationForegroundColor = POSITIVE
 			resultAnimationUnsuccessBackgroundColor = WHITE
-			resultAnimationUnsuccessForegroundColor = ERROR
+			resultAnimationUnsuccessForegroundColor = LIGHT_ERROR
 			sessionAbortAnimationBackgroundColor = WHITE
 			sessionAbortAnimationForegroundColor = ON_LIGHT
 			messageFont = bold
@@ -307,7 +320,7 @@ internal object KaraIdenfyLiveness {
 
 		return FaceTecCustomization().apply {
 			guidanceCustomization = guidance
-			ovalCustomization = oval()
+			ovalCustomization = oval(ON_LIGHT)
 			frameCustomization = frame
 			feedbackCustomization = feedback(bold)
 			resultScreenCustomization = result
@@ -316,12 +329,15 @@ internal object KaraIdenfyLiveness {
 		}
 	}
 
-	private fun oval(): FaceTecOvalCustomization =
+	// The progress is the one part of the oval that has to read, on the dark
+	// background and on the forced white of low light alike, so each variant passes
+	// its own ink.
+	private fun oval(progress: Int): FaceTecOvalCustomization =
 		FaceTecOvalCustomization().apply {
-			strokeColor = GOLD
+			strokeColor = MUTED
 			strokeWidth = 2
-			progressColor1 = GOLD
-			progressColor2 = GOLD
+			progressColor1 = progress
+			progressColor2 = progress
 			progressRadialOffset = 6
 		}
 

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Kara: the document art, in the Écrin neutrals. iDenfy ships each document type
+     in its own colour (indigo, purple, orange, pink, green); the geometry below is
+     theirs, from sdk-api 9.1.0, recoloured by role exactly as the iOS art in
+     apps/native/assets/idenfy: card fill surface-solid #1E1822, outline and accent
+     lines ink-3 #85796C, marks ink-2 #B9AE9F. Neutral because a verification flow
+     has no value to mark: the only gold on these screens is the continue button. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="80dp"
+    android:height="80dp"
+    android:viewportWidth="80"
+    android:viewportHeight="80">
+  <path
+      android:pathData="M0,18C0,13.5817 3.5817,10 8,10H72C76.4183,10 80,13.5817 80,18V62C80,66.4183 76.4183,70 72,70H8C3.5817,70 0,66.4183 0,62V18Z"
+      android:fillColor="#1E1822"/>
+  <path
+      android:pathData="M72,14H8C5.7909,14 4,15.7909 4,18V62C4,64.2091 5.7909,66 8,66H72C74.2091,66 76,64.2091 76,62V18C76,15.7909 74.2091,14 72,14ZM8,10C3.5817,10 0,13.5817 0,18V62C0,66.4183 3.5817,70 8,70H72C76.4183,70 80,66.4183 80,62V18C80,13.5817 76.4183,10 72,10H8Z"
+      android:fillColor="#85796C"
+      android:fillType="evenOdd"/>
+  <path
+      android:pathData="M41.9999,22L49.9999,22A2,2 0,0 1,51.9999 24L51.9999,24A2,2 0,0 1,49.9999 26L41.9999,26A2,2 0,0 1,39.9999 24L39.9999,24A2,2 0,0 1,41.9999 22z"
+      android:fillColor="#85796C"/>
+  <path
+      android:pathData="M14,22L34,22A2,2 0,0 1,36 24L36,24A2,2 0,0 1,34 26L14,26A2,2 0,0 1,12 24L12,24A2,2 0,0 1,14 22z"
+      android:fillColor="#B9AE9F"/>
+  <path
+      android:pathData="M58,22L66,22A2,2 0,0 1,68 24L68,24A2,2 0,0 1,66 26L58,26A2,2 0,0 1,56 24L56,24A2,2 0,0 1,58 22z"
+      android:fillColor="#85796C"/>
+  <path
+      android:pathData="M41.9999,38.0001L65.9999,38.0001A2,2 0,0 1,67.9999 40.0001L67.9999,40.0001A2,2 0,0 1,65.9999 42.0001L41.9999,42.0001A2,2 0,0 1,39.9999 40.0001L39.9999,40.0001A2,2 0,0 1,41.9999 38.0001z"
+      android:fillColor="#B9AE9F"/>
+  <path
+      android:pathData="M14,38.0001L34,38.0001A2,2 0,0 1,36 40.0001L36,40.0001A2,2 0,0 1,34 42.0001L14,42.0001A2,2 0,0 1,12 40.0001L12,40.0001A2,2 0,0 1,14 38.0001z"
+      android:fillColor="#B9AE9F"/>
+  <path
+      android:pathData="M14.0001,45.9999L66.0001,45.9999A2,2 0,0 1,68.0001 47.9999L68.0001,47.9999A2,2 0,0 1,66.0001 49.9999L14.0001,49.9999A2,2 0,0 1,12.0001 47.9999L12.0001,47.9999A2,2 0,0 1,14.0001 45.9999z"
+      android:fillColor="#85796C"/>
+  <path
+      android:pathData="M14.0001,30L66.0001,30A2,2 0,0 1,68.0001 32L68.0001,32A2,2 0,0 1,66.0001 34L14.0001,34A2,2 0,0 1,12.0001 32L12.0001,32A2,2 0,0 1,14.0001 30z"
+      android:fillColor="#B9AE9F"/>
+  <path
+      android:pathData="M14.0001,54L66.0001,54A2,2 0,0 1,68.0001 56L68.0001,56A2,2 0,0 1,66.0001 58L14.0001,58A2,2 0,0 1,12.0001 56L12.0001,56A2,2 0,0 1,14.0001 54z"
+      android:fillColor="#B9AE9F"/>
+</vector>

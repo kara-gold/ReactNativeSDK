@@ -8,7 +8,7 @@ import IdenfyLiveness
 // official ui-customization example (imports iDenfySDK + idenfyviews).
 import idenfyviews
 
-//  Kara dark + gold theme for the iDenfy native SDK.
+//  Kara theme for the iDenfy native SDK: the Écrin direction (KAR-120).
 //
 //  The iDenfy dashboard theme does NOT apply to the native SDK — the SDK reads
 //  its own static `IdenfyCommonColors` properties in code.
@@ -17,31 +17,44 @@ import idenfyviews
 //  matched to the SDK version pinned in the podspec (iDenfySDK-Static 9.1.0).
 
 enum KaraIdenfyTheme {
-	// Palette — mirrors apps/native/global.css (.dark), background per request.
-	// Internal: KaraIdenfyLayout matches views painted with it (see there).
-	static let background = karaColor("#090710") // app dark bg override
-	static let gold = karaColor("#E1BE6B") // --gold (accents, links, selection)
-	private static let text = karaColor("#FAFAFA") // --foreground
-	// Our cards are `bg-white/5` over a `border-white/10`, not an opaque grey.
-	// The app is one background image away from black, so a translucent surface
-	// picks up the gradient underneath instead of flattening it.
-	private static let card = UIColor.white.withAlphaComponent(0.05)
-	// Same tone, but opaque. A card sits inside a page and can afford to let the
-	// background through; a panel that floats over another screen cannot, or the
-	// screen underneath reads straight through it.
-	private static let overlay = karaColor("#1C1C1E")
-	private static let onButton = karaColor("#090710") // dark text on white buttons
-	private static let buttonFill = karaColor("#FAFAFA")
-	static let secondaryFill = karaColor("#262626") // --secondary, our grey button
-	private static let success = karaColor("#16A34A") // --kara-green
-	private static let error = karaColor("#EF4444") // --kara-red
-	private static let warning = karaColor("#E7B008") // --kara-yellow
-	private static let info = karaColor("#3B82F6") // --kara-blue
-	// Opacity scale, taken from the app's Button/border classes: white/10 for a
-	// hairline border, white/12 for a disabled fill, white/40 for disabled text.
-	private static let border = UIColor.white.withAlphaComponent(0.1)
-	private static let disabledFill = UIColor.white.withAlphaComponent(0.12)
-	private static let disabledText = UIColor.white.withAlphaComponent(0.4)
+	// Palette: the Écrin tokens of apps/native/lib/theme-tokens.ts (KAR-120),
+	// converted from their RGB channels. Internal: KaraIdenfyLayout matches views
+	// painted with some of these (see there).
+	//
+	// Gold marks the one action that moves the flow forward on each screen, and
+	// nothing else. A verification flow shows no value (no balance, no amount), so
+	// every loader, selection, link, step mark and illustration is neutral. The
+	// previous theme did the opposite: white primary button, gold everywhere else.
+	static let background = karaColor("#0F0C11") // canvas
+	static let text = karaColor("#F5EFE6") // ink
+	static let textSecondary = karaColor("#B9AE9F") // ink-2
+	private static let textTertiary = karaColor("#85796C") // ink-3
+	private static let brand = karaColor("#E8C47F")
+	private static let brandPressed = karaColor("#CFA75E")
+	private static let onButton = karaColor("#241B0E") // on-brand, the label on gold
+	// The Écrin filled gold: a 125 degree gradient with its light band at 60 %.
+	// iDenfy only takes two stops (idenfyGradientColor1V2 / 2V2), so those carry
+	// the ends and KaraIdenfyLayout puts the middle stop back on the button's own
+	// gradient layer.
+	static let brandGradient = [karaColor("#E0BB74"), karaColor("#EFD9A8"), karaColor("#D9B264")]
+	static let brandGradientLocations: [NSNumber] = [0, 0.6, 1]
+	// Translucent surfaces only work flat on the canvas. Anything floating over
+	// another screen or over the live camera takes the opaque one, or the content
+	// underneath reads straight through it.
+	static let surface = text.withAlphaComponent(0.06) // surface
+	private static let surfaceHi = text.withAlphaComponent(0.15) // surface-hi
+	private static let surfaceSolid = karaColor("#1E1822") // surface-solid
+	// The Écrin secondary button (tone-neutral). KaraIdenfyLayout recognises the
+	// retake buttons by this exact fill, which is why the disabled fill below is
+	// the (visually identical) surface token rather than the same value.
+	static let secondaryFill = text.withAlphaComponent(0.08)
+	private static let positive = karaColor("#86C99A")
+	private static let negative = karaColor("#F0907E")
+	// No Écrin token for a warning: the blur and glare cards keep an amber, judged
+	// next to the gold button on the same screens.
+	private static let warning = karaColor("#E7B008")
+	private static let disabledFill = surface
+	private static let disabledText = textTertiary
 
 	@MainActor
 	static func apply() {
@@ -52,6 +65,7 @@ enum KaraIdenfyTheme {
 		applyCornerRadii()
 		applyDisabledButtons()
 		applySpinners()
+		applyCamera()
 		applyStatusTints()
 		applyBordersAndRowHeights()
 		applyBodyTextSizes()
@@ -61,7 +75,7 @@ enum KaraIdenfyTheme {
 		KaraIdenfySecondaryButtons.install()
 	}
 
-	// The grey secondary button — retake a photo, choose another file.
+	// The tonal secondary button — retake a photo, choose another file.
 	//
 	// Its label is repainted through every route the SDK might have used, because
 	// they do not override each other: on the alerts, the fill and the border took
@@ -134,17 +148,19 @@ enum KaraIdenfyTheme {
 		ConstsIdenfyFonts.idenfyFontRegularV2 = "Gabarito-Regular"
 	}
 
-	// Two radii, mirroring the app: `rounded-full` for buttons, `rounded-2xl`
-	// (16pt) for every other surface. iDenfy defaults to 2-4pt everywhere, which
-	// reads as a different product next to ours.
+	// Radii from the Écrin: a pill for buttons, 22 for blocks and panels, 16 for
+	// fields. iDenfy defaults to 2-4pt everywhere, which reads as a different
+	// product next to ours.
 	//
 	// 22 is a full pill at iDenfy's ~45pt button height and degrades to a rounded
 	// rect on anything taller. Deliberately not larger: `layer.cornerRadius` above
 	// half the height distorts the corners, and the SDK exposes no height hook.
 	private static let pill = CGFloat(22)
-	private static let cardRadius = CGFloat(16)
-	private static let fieldRadius = CGFloat(8) // `rounded-md`, our text inputs
-	private static let hairline = CGFloat(1) // the app's `border`, not iDenfy's 2pt
+	private static let cardRadius = CGFloat(22)
+	private static let fieldRadius = CGFloat(16)
+	// The Écrin draws no borders: blocks, fields and lists are carried by their
+	// surface alone. iDenfy defaults to 2pt everywhere.
+	private static let borderWidth = CGFloat(0)
 	private static let rowHeight = CGFloat(56) // matches the `large` button height
 
 	// The retake / choose-another buttons take their radius from the shared
@@ -161,8 +177,8 @@ enum KaraIdenfyTheme {
 		IdenfyInstructionAlertUISettigsV2.idenfyInstructionAlertDetailsCardCornerRadius = cardRadius
 		IdenfyLoadingHUDUISettingsV2.idenfyLoadingHUDCornerRadius = cardRadius
 
-		// The country field, the document chips and the country search are text
-		// inputs, not buttons: they follow `rounded-md` from components/ui/input.tsx.
+		// The country field, the document chips and the country search are fields,
+		// not buttons: they take the Écrin field radius.
 		IdenfyCountryAndDocumentSelectionViewUISettingsV2.idenfyCountryAndDocumentSelectionViewItemSelectionCornerRadius = fieldRadius
 		IdenfyIssuedCountryViewUISettingsV2.idenfyIssuedCountryViewCountryViewCorderRadius = fieldRadius
 		IdenfyCountrySelectionViewUISettingsV2.idenfyCountrySelectionViewCountrySearchBarCorderRadius = fieldRadius
@@ -199,30 +215,39 @@ enum KaraIdenfyTheme {
 	@MainActor
 	static func makeLivenessSettings() -> IdenfyLivenessUISettings {
 		let settings = IdenfyLivenessUISettings()
-		settings.idenfyLivenessPrimaryColor = gold
-		settings.idenfyLivenessAccentColor = gold
+		// The face scan itself has no action: the user holds still. So the oval,
+		// its progress and the frame are neutral, and the only gold is the ready
+		// screen's button below.
+		settings.idenfyLivenessPrimaryColor = text
+		settings.idenfyLivenessAccentColor = text
 		settings.idenfyLivenessTextColor = text
-		settings.livenessFeedbackBackgroundColor = card
+		// Floats over the live camera, so opaque (see surfaceSolid).
+		settings.livenessFeedbackBackgroundColor = surfaceSolid
 		settings.livenessFeedbackFontColor = text
 		settings.livenessFrameBackgroundColor = background
-		settings.livenessFrameColor = gold
-		settings.livenessIdentificationOvalProgressColor1 = gold
-		settings.livenessIdentificationProgressStrokeColor = gold
-		settings.livenessIdentificationOvalProgressColor2 = gold
+		// Borderless, as on Android: the frame is the full-bleed container.
+		settings.livenessFrameColor = background
+		settings.livenessIdentificationOvalProgressColor1 = text
+		settings.livenessIdentificationProgressStrokeColor = textTertiary
+		settings.livenessIdentificationOvalProgressColor2 = text
 		settings.livenessOverlayBackgroundColor = background
 		settings.livenessReadyScreenBackgroundColors = [background, background]
 		settings.livenessReadyScreenTextBackgroundColor = background
 		settings.livenessReadyScreenForegroundColor = onButton
-		settings.livenessReadyScreenButtonBackgroundNormalColor = gold
-		settings.livenessReadyScreenButtonBackgroundHighlightedColor = gold
-		settings.livenessReadyScreenButtonBackgroundDisabledColor = card
+		// "I'm ready" starts the scan: the one gold element of the face step.
+		// FaceTec takes a single colour here, so it gets the flat brand gold.
+		settings.livenessReadyScreenButtonBackgroundNormalColor = brand
+		settings.livenessReadyScreenButtonBackgroundHighlightedColor = brandPressed
+		settings.livenessReadyScreenButtonBackgroundDisabledColor = disabledFill
 		settings.livenessReadyScreenButtonCornerRadius = Int32(pill)
 		settings.livenessResultScreenForegroundColor = text
-		settings.livenessResultScreenIndicatorColor = gold
-		settings.livenessResultScreenUploadProgressFillColor = gold
+		settings.livenessResultScreenIndicatorColor = textSecondary
+		settings.livenessResultScreenUploadProgressFillColor = text
 		// FaceTec always draws something here: turning the branding off just fell
 		// back to its own "yourAppLOGO" placeholder rather than showing nothing.
-		// So the Kara wordmark goes back, untinted so it keeps its own colours.
+		// So the Kara wordmark goes back, untinted: the asset itself is drawn in
+		// cream (apps/native/assets/idenfy), since gold there would be decorative
+		// and sit right above the gold button.
 		if let logo = karaImage("KaraBrandingLogo") {
 			settings.livenessOverlayBrandingImage = logo
 			settings.livenessReadyScreenShowBrandingImage = true
@@ -252,34 +277,40 @@ enum KaraIdenfyTheme {
 		// it. Making the token itself transparent leaked the live camera through
 		// the photo-result screen, which the delegate never gets a callback for.
 		IdenfyCommonColors.idenfyBackgroundColorV2 = background
-		IdenfyCommonColors.idenfyMainColorV2 = gold
-		IdenfyCommonColors.idenfyMainDarkerColorV2 = gold
+		// The SDK's accent: links, loaders, step marks, selections, checkboxes. All
+		// of it goes neutral in one move; the one gold element per screen is the
+		// primary button, painted by the gradient below.
+		IdenfyCommonColors.idenfyMainColorV2 = text
+		IdenfyCommonColors.idenfyMainDarkerColorV2 = text
 		IdenfyCommonColors.idenfySecondColorV2 = text
-		// Primary buttons are a gradient — make them solid white (app dark primary).
-		IdenfyCommonColors.idenfyGradientColor1V2 = buttonFill
-		IdenfyCommonColors.idenfyGradientColor2V2 = buttonFill
+		// Primary buttons are a two-stop gradient: the two ends of the Écrin gold.
+		// KaraIdenfyLayout adds the light band in the middle.
+		IdenfyCommonColors.idenfyGradientColor1V2 = brandGradient[0]
+		IdenfyCommonColors.idenfyGradientColor2V2 = brandGradient[2]
+		IdenfyButtonsUISettingsV2.idenfyGradientButtonColorStart = brandGradient[0]
+		IdenfyButtonsUISettingsV2.idenfyGradientButtonColorEnd = brandGradient[2]
 		// Light-gray surfaces (privacy-policy cards, accepted-docs cards) default
 		// light → white text was invisible on them. Make them dark cards.
-		IdenfyCommonColors.idenfyLightGrayColor = card
+		IdenfyCommonColors.idenfyLightGrayColor = surface
 		// Near-black master color used for content drawn on light surfaces (splash
 		// titles, the PDF-result file icon, spinners). On our dark backgrounds it
 		// renders black-on-black (invisible) — remap to light. Set both V1 + V2.
 		IdenfyCommonColors.idenfyBlackV2 = text
 		IdenfyCommonColors.idenfyBlack = text
 		// Photo-result details card.
-		IdenfyCommonColors.idenfyPhotoResultDetailsCardBackgroundColorV2 = card
+		IdenfyCommonColors.idenfyPhotoResultDetailsCardBackgroundColorV2 = surface
 		// Status colors → match the app's semantic palette.
-		IdenfyCommonColors.idenfyStepSuccessColorV2 = success
-		IdenfyCommonColors.idenfyStepErrorColorV2 = error
-		IdenfyCommonColors.idenfyRedColorV2 = error
-		IdenfyCommonColors.idenfyDarkRedErrorColorV2 = error
-		// Loading HUD (full-screen spinner overlay): default light container →
-		// dark card with light text.
-		IdenfyLoadingHUDUISettingsV2.idenfyLoadingHUDBackgroundColor = overlay
+		IdenfyCommonColors.idenfyStepSuccessColorV2 = positive
+		IdenfyCommonColors.idenfyStepErrorColorV2 = negative
+		IdenfyCommonColors.idenfyRedColorV2 = negative
+		IdenfyCommonColors.idenfyDarkRedErrorColorV2 = negative
+		// Loading HUD (full-screen spinner overlay): it floats over the previous
+		// screen, so the opaque surface, with light text.
+		IdenfyLoadingHUDUISettingsV2.idenfyLoadingHUDBackgroundColor = surfaceSolid
 		IdenfyLoadingHUDUISettingsV2.idenfyLoadingHUDTitleColor = text
-		IdenfyLoadingHUDUISettingsV2.idenfyLoadingHUDDescriptionColor = text
-		// Splash spinner inherits idenfyBlackV2 (now light) → white. Gold instead.
-		IdenfySplashScreenViewUISettingsV2.idenfySplashScreenViewSpinnerTintColor = gold
+		IdenfyLoadingHUDUISettingsV2.idenfyLoadingHUDDescriptionColor = textSecondary
+		// Nothing to do while the splash loads, so no gold.
+		IdenfySplashScreenViewUISettingsV2.idenfySplashScreenViewSpinnerTintColor = textSecondary
 	}
 
 	@MainActor
@@ -293,12 +324,12 @@ enum KaraIdenfyTheme {
 		// Pinned so the header keeps one height across the flow instead of varying
 		// with each screen's content.
 		IdenfyToolbarUISettingsV2.idenfyToolbarHeight = 60
-		// Back arrow and close icon in the app's white, not gold.
+		// Back arrow and close icon in cream.
 		IdenfyToolbarUISettingsV2.idenfyDefaultToolbarBackIconTintColor = text
 		IdenfyToolbarUISettingsV2.idenfyCameraPreviewSessionToolbarBackIconTintColor = text
 		IdenfyToolbarUISettingsV2.idenfyLanguageSelectionToolbarCloseIconTintColor = text
-		// The language globe defaulted to the main colour, so it was the one gold
-		// icon among white ones.
+		// The language globe defaults to the main colour; pinned here so it stays
+		// with the other toolbar icons whatever that colour becomes.
 		IdenfyToolbarUISettingsV2.idenfyLanguageSelectionToolbarLanguageSelectionIconTintColor = text
 		IdenfyToolbarUISettingsV2.idenfyFaceAuthToolbarLanguageSelectionIconTintColor = text
 		// The toolbar has no title-text property: its centre is an image view. The
@@ -312,18 +343,17 @@ enum KaraIdenfyTheme {
 		IdenfyPrivacyPolicyViewUISettingsV2.idenfyPrivacyPolicyAgreeButtonTextColor = onButton
 		IdenfyCountryAndDocumentSelectionViewUISettingsV2.idenfyCountryAndDocumentSelectionViewContinueButtonEnabledTextColor = onButton
 		IdenfyDocumentSelectionViewUISettingsV2.idenfyDocumentSelectionViewContinueButtonEnabledTextColor = onButton
-		IdenfyDocumentSelectionViewUISettingsV2.idenfyDocumentSelectionViewDocumentTableViewCellHighlightedTextColor = onButton
 		// Document-capture onboarding screen ("Front of the ID card"). Its continue
-		// button text was unset → white-on-white (invisible). Keep the button white,
-		// force dark text in both states.
+		// button text was unset → light on the light fill (invisible). Force the
+		// on-gold label in both states.
 		IdenfyStaticCameraOnBoardingViewUISettingsV2.idenfyCameraOnBoardingEnabledContinueButtonTextColor = onButton
 		IdenfyStaticCameraOnBoardingViewUISettingsV2.idenfyCameraOnBoardingDisabledContinueButtonTextColor = onButton
 		IdenfyPhotoResultViewUISettingsV2.idenfyPhotoResultViewContinueButtonTextColor = onButton
 		// The retake buttons take their LABEL colour from the border setting, not
 		// from the text one, which is inert. Setting the border to the fill is what
-		// made the label vanish through seven attempts. So: grey fill, white border,
-		// and the label comes out white. The visible outline is the price of a
-		// readable label, and it lands close to the app's `border-white/10` cards.
+		// made the label vanish through seven attempts. So: tonal fill, cream border,
+		// and the label comes out cream. The border itself is never drawn, its width
+		// is zeroed at layout (KaraIdenfyLayout, KaraIdenfyCameraResultView).
 		IdenfyPhotoResultViewUISettingsV2.idenfyPhotoResultViewRetakePhotoButtonBackgroundColor = secondaryFill
 		IdenfyPhotoResultViewUISettingsV2.idenfyPhotoResultViewRetakePhotoButtonBorderColor = text
 		IdenfyPdfResultViewUISettingsV2.idenfyPdfResultViewRetakePdfButtonBackgroundColor = secondaryFill
@@ -343,7 +373,11 @@ enum KaraIdenfyTheme {
 		IdenfyMrzNotFoundAlertUISettigsV2.idenfyMrzNotFoundAlertContinueButtonTextColor = onButton
 		IdenfyMismatchFoundAlertUISettigsV2.idenfyMismatchFoundAlertContinueButtonTextColor = onButton
 		IdenfyInstructionAlertUISettigsV2.idenfyInstructionAlertContinueButtonTextColor = onButton
-		// End-of-flow and permission screens. Same white-on-white trap, and these
+		// The highlighted document name used to be picked out in gold. It stays
+		// picked out, by contrast: full cream on a secondary-cream sentence.
+		IdenfyDocNotFoundAlertUISettigsV2.idenfyDocNotFoundAlertCommonInformationDescriptionTextColor = textSecondary
+		IdenfyDocNotFoundAlertUISettigsV2.idenfyDocNotFoundAlertDescriptionHighlightedTextColor = text
+		// End-of-flow and permission screens. Same light-on-light trap, and these
 		// are the ones a user actually lands on when something goes wrong
 		// (cancelled session, denied camera, NFC).
 		IdenfyAdditionalSupportViewUISettingsV2.idenfyAdditionalSupportViewContinueButtonTextColor = onButton
@@ -356,9 +390,8 @@ enum KaraIdenfyTheme {
 		IdenfyNFCRequiredViewUISettingsV2.idenfyNFCRequiredContinueButtonTextColor = onButton
 	}
 
-	// Disabled primary buttons. iDenfy's default is a white@20% block with
-	// white@50% text — heavier than ours, which is a transparent pill with a
-	// white/20 border. No border knob here, so: lighter fill, dimmer label.
+	// Disabled primary buttons: no gold at all, as in the Écrin (a pale gold still
+	// reads as an action). Tonal fill, tertiary label.
 	@MainActor
 	private static func applyDisabledButtons() {
 		IdenfyCountryAndDocumentSelectionViewUISettingsV2.idenfyCountryAndDocumentSelectionViewContinueButtonDisabledBackgroundColor = disabledFill
@@ -373,16 +406,34 @@ enum KaraIdenfyTheme {
 		IdenfyQuestionnaireViewUISettingsV2.idenfyQuestionnaireViewContinueButtonDisabledTextColor = disabledText
 	}
 
-	// Spinners default to white. On the white primary buttons that is invisible;
-	// everywhere else (dark cards, dark lists) gold matches the app's loaders.
+	// A spinner inside a gold button takes the on-gold colour. Everywhere else a
+	// loader means waiting, which is no action, so it is cream like the other
+	// loaders the accent colour reaches.
 	@MainActor
 	private static func applySpinners() {
 		IdenfyPrivacyPolicyViewUISettingsV2.idenfyPrivacyPolicyAgreeButtonLoadingSpinnerTintColor = onButton
 		IdenfyDocumentSelectionViewUISettingsV2.idenfyDocumentSelectionViewContinueButtonLoadingSpinnerTintColor = onButton
 		IdenfyQuestionnaireViewUISettingsV2.idenfyQuestionnaireViewContinueButtonLoadingSpinnerTintColor = onButton
-		IdenfyCountryAndDocumentSelectionViewUISettingsV2.idenfyCountryAndDocumentSelectionViewCountryLoadingSpinnerTintColor = gold
-		IdenfyCountrySelectionViewUISettingsV2.idenfyCountrySelectionViewCountryLoadingSpinnerTintColor = gold
-		IdenfyLoadingHUDUISettingsV2.idenfyLoadingSpinnerTintColor = gold
+		IdenfyCountryAndDocumentSelectionViewUISettingsV2.idenfyCountryAndDocumentSelectionViewCountryLoadingSpinnerTintColor = text
+		IdenfyCountrySelectionViewUISettingsV2.idenfyCountrySelectionViewCountryLoadingSpinnerTintColor = text
+		IdenfyLoadingHUDUISettingsV2.idenfyLoadingSpinnerTintColor = text
+	}
+
+	// The shutter is the action of the camera screens: gold fill, on-gold icon,
+	// darker when pressed. Shape and size stay the SDK's, only the fill changes.
+	// The upload shortcut next to it is secondary, so cream.
+	@MainActor
+	private static func applyCamera() {
+		IdenfyDocumentCameraSessionUISettingsV2.idenfyDocumentCameraPreviewSessionTakePhotoButtonUnFocusedBackgroundColor = brand
+		IdenfyDocumentCameraSessionUISettingsV2.idenfyDocumentCameraPreviewSessionTakePhotoButtonUnFocusedTintColor = onButton
+		IdenfyDocumentCameraSessionUISettingsV2.idenfyDocumentCameraPreviewSessionTakePhotoButtonFocusedBackgroundColor = brandPressed
+		IdenfyDocumentCameraSessionUISettingsV2.idenfyDocumentCameraPreviewSessionTakePhotoButtonFocusedTintColor = onButton
+		IdenfyDocumentCameraSessionUISettingsV2.idenfyDocumentCameraPreviewSessionUploadPhotoButtonTintColor = text
+		IdenfyFaceCameraSessionUISettingsV2.idenfyFaceCameraPreviewSessionTakePhotoButtonUnFocusedBackgroundColor = brand
+		IdenfyFaceCameraSessionUISettingsV2.idenfyFaceCameraPreviewSessionTakePhotoButtonUnFocusedTintColor = onButton
+		IdenfyFaceCameraSessionUISettingsV2.idenfyFaceCameraPreviewSessionTakePhotoButtonFocusedBackgroundColor = brandPressed
+		IdenfyFaceCameraSessionUISettingsV2.idenfyFaceCameraPreviewSessionTakePhotoButtonFocusedTintColor = onButton
+		IdenfyFaceCameraSessionUISettingsV2.idenfyDocumentCameraPreviewSessionUploadPhotoButtonTintColor = text
 	}
 
 	// Status tints. Every "light" colour below is a light-mode pastel (#FFEBEE,
@@ -391,37 +442,41 @@ enum KaraIdenfyTheme {
 	// for 12% washes of the app's semantic colours, the way our own cards do it.
 	@MainActor
 	private static func applyStatusTints() {
-		IdenfyCommonColors.idenfyErrorLightRedColorV2 = error.withAlphaComponent(0.12)
+		IdenfyCommonColors.idenfyErrorLightRedColorV2 = negative.withAlphaComponent(0.12)
 		IdenfyCommonColors.idenfyWarningLightYellowV2 = warning.withAlphaComponent(0.12)
-		IdenfyCommonColors.idenfyBackgroundGreenV2 = success.withAlphaComponent(0.12)
-		IdenfyCommonColors.idenfyLightBlueColor = info.withAlphaComponent(0.12)
+		IdenfyCommonColors.idenfyBackgroundGreenV2 = positive.withAlphaComponent(0.12)
 		IdenfyCommonColors.idenfyWarningYellowV2 = warning
-		IdenfyCommonColors.idenfyBlueColor = info
-		IdenfyCommonColors.idenfyBorderGreenV2 = success
-		IdenfyCommonColors.idenfyFaceDetectedColor = success
-		IdenfyCommonColors.idenfyFaceNotDetectedColor = disabledText
-		// iDenfy purple survives in a few highlight states. Fold it into gold.
-		IdenfyCommonColors.idenfyPurpleV2 = gold
-		IdenfyCommonColors.idenfyPurpleTextV2 = onButton
-		IdenfyCommonColors.idenfyBackgroundPurpleV2 = gold
+		// The Écrin has no blue: information is neutral.
+		IdenfyCommonColors.idenfyLightBlueColor = secondaryFill
+		IdenfyCommonColors.idenfyBlueColor = textSecondary
+		IdenfyCommonColors.idenfyBorderGreenV2 = positive
+		IdenfyCommonColors.idenfyFaceDetectedColor = positive
+		IdenfyCommonColors.idenfyFaceNotDetectedColor = textTertiary
+		// Processing steps: a done step reads as done, a step in progress stays
+		// quiet. Both followed the accent before.
+		IdenfyIdentificationResultsViewUISettingsV2.idenfyIdentificationResultsDividerIconStatusSuccessTintColor = positive
+		IdenfyIdentificationResultsViewUISettingsV2.idenfyIdentificationResultsDividerIconStatusLoadingTintColor = textTertiary
+		// iDenfy purple survives in a few highlight states. Neutral, like every
+		// other accent: a cream mark on a tonal surface.
+		IdenfyCommonColors.idenfyPurpleV2 = text
+		IdenfyCommonColors.idenfyPurpleTextV2 = text
+		IdenfyCommonColors.idenfyBackgroundPurpleV2 = surface
 	}
 
-	// 2pt borders everywhere; the app uses 1pt at ~12% white. Row heights go to
-	// 56 to match our large control height (the document list already ships 56).
+	// Borders off (see borderWidth). Row heights go to 56 to match our large
+	// control height (the document list already ships 56).
 	@MainActor
 	private static func applyBordersAndRowHeights() {
-		IdenfyDocumentSelectionViewUISettingsV2.idenfyDocumentSelectionViewDocumentTableViewBorderWidth = hairline
-		IdenfyDocumentSelectionViewUISettingsV2.idenfyDocumentSelectionViewDocumentTableViewCellBorderWidth = hairline
-		IdenfyDocumentSelectionViewUISettingsV2.idenfyDocumentSelectionViewDocumentTableViewBorderColor = border
-		IdenfyDocumentSelectionViewUISettingsV2.idenfyDocumentSelectionViewDocumentTableViewCellBorderColor = border
-		IdenfyCountrySelectionViewUISettingsV2.idenfyCountrySelectionViewCountrySearchBarBorderWidth = hairline
-		IdenfyCountrySelectionViewUISettingsV2.idenfyCountrySelectionViewCountryTableViewBorderWidth = hairline
-		IdenfyCountrySelectionViewUISettingsV2.idenfyCountrySelectionViewCountryTableViewCellBorderWidth = hairline
-		IdenfyLanguageSelectionViewUISettingsV2.idenfyLanguageSelectionViewLanguageTableViewBorderWidth = hairline
-		IdenfyLanguageSelectionViewUISettingsV2.idenfyLanguageSelectionViewLanguageTableViewCellBorderWidth = hairline
-		IdenfyIssuedCountryViewUISettingsV2.idenfyIssuedCountryViewCountryViewBorderWidth = hairline
-		IdenfyUploadPhotoViewUISettingsV2.idenfyUploadPhotoViewCroppingViewBorderWidth = hairline
-		IdenfyPhotoResultViewUISettingsV2.idenfyPhotoResultViewPhotoBorderWidth = hairline
+		IdenfyDocumentSelectionViewUISettingsV2.idenfyDocumentSelectionViewDocumentTableViewBorderWidth = borderWidth
+		IdenfyDocumentSelectionViewUISettingsV2.idenfyDocumentSelectionViewDocumentTableViewCellBorderWidth = borderWidth
+		IdenfyCountrySelectionViewUISettingsV2.idenfyCountrySelectionViewCountrySearchBarBorderWidth = borderWidth
+		IdenfyCountrySelectionViewUISettingsV2.idenfyCountrySelectionViewCountryTableViewBorderWidth = borderWidth
+		IdenfyCountrySelectionViewUISettingsV2.idenfyCountrySelectionViewCountryTableViewCellBorderWidth = borderWidth
+		IdenfyLanguageSelectionViewUISettingsV2.idenfyLanguageSelectionViewLanguageTableViewBorderWidth = borderWidth
+		IdenfyLanguageSelectionViewUISettingsV2.idenfyLanguageSelectionViewLanguageTableViewCellBorderWidth = borderWidth
+		IdenfyIssuedCountryViewUISettingsV2.idenfyIssuedCountryViewCountryViewBorderWidth = borderWidth
+		IdenfyUploadPhotoViewUISettingsV2.idenfyUploadPhotoViewCroppingViewBorderWidth = borderWidth
+		IdenfyPhotoResultViewUISettingsV2.idenfyPhotoResultViewPhotoBorderWidth = borderWidth
 
 		IdenfyCountryAndDocumentSelectionViewUISettingsV2.idenfyCountryAndDocumentSelectionViewCountryTableViewCellHeight = rowHeight
 		IdenfyCountrySelectionViewUISettingsV2.idenfyCountrySelectionViewCountryTableViewCellHeight = rowHeight
@@ -447,49 +502,56 @@ enum KaraIdenfyTheme {
 
 	// Country + document selection cards (the joined first screen). iDenfy's
 	// defaults render the country field and unselected cards as grey/white with
-	// near-invisible text — the country field looked disabled. Make every card a
-	// borderless dark surface with readable text; the selected card gets a solid
-	// gold fill with dark text.
+	// near-invisible text — the country field looked disabled. Every card is an
+	// Écrin field: surface, no border, readable text.
 	@MainActor
 	private static func applySelectionCards() {
-		IdenfyCountryAndDocumentSelectionViewUISettingsV2.idenfyCountryAndDocumentSelectionViewItemSelectionBackgroundColor = card
+		IdenfyCountryAndDocumentSelectionViewUISettingsV2.idenfyCountryAndDocumentSelectionViewItemSelectionBackgroundColor = surface
 		IdenfyCountryAndDocumentSelectionViewUISettingsV2.idenfyCountryAndDocumentSelectionViewItemSelectionTextColor = text
-		// Same hairline as the app's cards, on the chips and on the country field.
-		IdenfyCountryAndDocumentSelectionViewUISettingsV2.idenfyCountryAndDocumentSelectionViewItemSelectionBorderWidth = hairline
-		IdenfyCountryAndDocumentSelectionViewUISettingsV2.idenfyCountryAndDocumentSelectionViewItemSelectionBorderColor = border
-		// Selected reads as our primary button: white fill, dark label. Gold stays
-		// for accents, never for a filled surface this large.
-		IdenfyCountryAndDocumentSelectionViewUISettingsV2.idenfyCountryAndDocumentSelectionViewItemSelectionHighlightedBackgroundColor = buttonFill
-		IdenfyCountryAndDocumentSelectionViewUISettingsV2.idenfyCountryAndDocumentSelectionViewItemSelectionHighlightedTextColor = onButton
+		IdenfyCountryAndDocumentSelectionViewUISettingsV2.idenfyCountryAndDocumentSelectionViewItemSelectionBorderWidth = borderWidth
+		IdenfyCountryAndDocumentSelectionViewUISettingsV2.idenfyCountryAndDocumentSelectionViewItemSelectionBorderColor = .clear
+		// A choice is never gold, and no longer a white slab either: the selected
+		// card lifts to the higher surface, as the Écrin's exclusive choice does.
+		// The gold on this screen is the continue button.
+		IdenfyCountryAndDocumentSelectionViewUISettingsV2.idenfyCountryAndDocumentSelectionViewItemSelectionHighlightedBackgroundColor = surfaceHi
+		IdenfyCountryAndDocumentSelectionViewUISettingsV2.idenfyCountryAndDocumentSelectionViewItemSelectionHighlightedTextColor = text
 		// The selected card draws its own border with no width knob, so match it to
 		// the fill and let the shape carry the state.
-		IdenfyCountryAndDocumentSelectionViewUISettingsV2.idenfyCountryAndDocumentSelectionViewItemSelectionHighlightedBorderColor = buttonFill
+		IdenfyCountryAndDocumentSelectionViewUISettingsV2.idenfyCountryAndDocumentSelectionViewItemSelectionHighlightedBorderColor = surfaceHi
+		// Same rule on the standalone document list.
+		IdenfyDocumentSelectionViewUISettingsV2.idenfyDocumentSelectionViewDocumentTableViewCellHighlightedBackgroundColor = surfaceHi
+		IdenfyDocumentSelectionViewUISettingsV2.idenfyDocumentSelectionViewDocumentTableViewCellHighlightedTextColor = text
 	}
 
 	// Full-screen picker lists (language, document country). iDenfy defaults both
-	// tables to a white panel with near-invisible grey text. Make them dark lists
-	// (matching the toolbar) with readable text; the highlighted row gets a gold
-	// fill with dark text.
+	// tables to a white panel with near-invisible grey text. Each list is an Écrin
+	// block: one surface, transparent rows, the selected row lifted, never gold
+	// (picking a row only returns to the previous screen, it is not an action).
+	//
+	// The rows are clear rather than painted with the background token on
+	// purpose: KaraIdenfyLayout puts the background image behind every view of
+	// that colour, and one image per row would repeat the canvas glow down the
+	// list.
 	@MainActor
 	private static func applyDarkLists() {
 		// Language selection.
-		IdenfyLanguageSelectionViewUISettingsV2.idenfyLanguageSelectionViewLanguageTableViewBackgroundColor = background
-		IdenfyLanguageSelectionViewUISettingsV2.idenfyLanguageSelectionViewLanguageTableViewCellBackgroundColor = background
+		IdenfyLanguageSelectionViewUISettingsV2.idenfyLanguageSelectionViewLanguageTableViewBackgroundColor = surface
+		IdenfyLanguageSelectionViewUISettingsV2.idenfyLanguageSelectionViewLanguageTableViewCellBackgroundColor = .clear
 		IdenfyLanguageSelectionViewUISettingsV2.idenfyLanguageSelectionViewLanguageTableViewCellTextColor = text
-		IdenfyLanguageSelectionViewUISettingsV2.idenfyLanguageSelectionViewLanguageTableViewCellHighlightedBackgroundColor = gold
-		IdenfyLanguageSelectionViewUISettingsV2.idenfyLanguageSelectionViewLanguageTableViewCellHighlightedTextColor = onButton
+		IdenfyLanguageSelectionViewUISettingsV2.idenfyLanguageSelectionViewLanguageTableViewCellHighlightedBackgroundColor = surfaceHi
+		IdenfyLanguageSelectionViewUISettingsV2.idenfyLanguageSelectionViewLanguageTableViewCellHighlightedTextColor = text
 		// Document country selection (the dropdown list opened from the country field).
-		IdenfyCountrySelectionViewUISettingsV2.idenfyCountrySelectionViewCountryTableViewBackgroundColor = background
-		IdenfyCountrySelectionViewUISettingsV2.idenfyCountrySelectionViewCountryTableViewCellBackgroundColor = background
+		IdenfyCountrySelectionViewUISettingsV2.idenfyCountrySelectionViewCountryTableViewBackgroundColor = surface
+		IdenfyCountrySelectionViewUISettingsV2.idenfyCountrySelectionViewCountryTableViewCellBackgroundColor = .clear
 		IdenfyCountrySelectionViewUISettingsV2.idenfyCountrySelectionViewCountryTableViewCellTextColor = text
-		IdenfyCountrySelectionViewUISettingsV2.idenfyCountrySelectionViewCountryTableViewCellHighlightedBackgroundColor = gold
-		IdenfyCountrySelectionViewUISettingsV2.idenfyCountrySelectionViewCountryTableViewCellHighlightedTextColor = onButton
-		// Search field at the top of the country list — default white box. Make it
-		// a dark card with light typed text and a gold search icon.
-		IdenfyCountrySelectionViewUISettingsV2.idenfyCountrySelectionViewCountrySearchBarBackgroundColor = card
+		IdenfyCountrySelectionViewUISettingsV2.idenfyCountrySelectionViewCountryTableViewCellHighlightedBackgroundColor = surfaceHi
+		IdenfyCountrySelectionViewUISettingsV2.idenfyCountrySelectionViewCountryTableViewCellHighlightedTextColor = text
+		// Search field at the top of the country list — default white box. An
+		// Écrin field: surface, cream typed text, tertiary placeholder and icon.
+		IdenfyCountrySelectionViewUISettingsV2.idenfyCountrySelectionViewCountrySearchBarBackgroundColor = surface
 		IdenfyCountrySelectionViewUISettingsV2.idenfyCountrySelectionViewCountrySearchBarTextColor = text
-		IdenfyCountrySelectionViewUISettingsV2.idenfyCountrySelectionViewCountrySearchBarHintTextColor = text
-		IdenfyCountrySelectionViewUISettingsV2.idenfyCountrySelectionViewCountrySearchBarSearchIconTintColor = gold
+		IdenfyCountrySelectionViewUISettingsV2.idenfyCountrySelectionViewCountrySearchBarHintTextColor = textTertiary
+		IdenfyCountrySelectionViewUISettingsV2.idenfyCountrySelectionViewCountrySearchBarSearchIconTintColor = textTertiary
 	}
 
 	// Free function (not a UIColor extension) so it can never collide with an

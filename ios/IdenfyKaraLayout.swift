@@ -15,8 +15,8 @@ import idenfyviews
 //  content) belongs in a proper IdenfyViewsBuilderV2 subclass instead.
 @MainActor
 final class KaraIdenfyLayout: NSObject, UINavigationControllerDelegate {
-	// Matches the app's `large` Button (minHeight 56).
-	private static let buttonHeight = CGFloat(56)
+	// The Écrin button height.
+	private static let buttonHeight = CGFloat(52)
 	// Below this width a UIButton is an icon or an inline link, not a CTA.
 	private static let ctaMinimumWidth = CGFloat(200)
 	// Room for the back button on one side and the language globe on the other.
@@ -24,7 +24,8 @@ final class KaraIdenfyLayout: NSObject, UINavigationControllerDelegate {
 	// Fallback only: the country field is normally matched to the document chips,
 	// which the SDK sizes itself. `h-10` from components/ui/input.tsx.
 	private static let fieldHeight = CGFloat(40)
-	private static let fieldRadius = CGFloat(8)
+	// The Écrin field radius, same as KaraIdenfyTheme.fieldRadius.
+	private static let fieldRadius = CGFloat(16)
 
 	// The SDK's navigation controller only holds a weak delegate reference.
 	static let shared = KaraIdenfyLayout()
@@ -67,7 +68,9 @@ final class KaraIdenfyLayout: NSObject, UINavigationControllerDelegate {
 		}
 	}
 
-	// The app paints every screen over assets/backgrounds/general-background.jpg.
+	// The app paints every screen over the Écrin canvas and its radial glow
+	// (components/ui/screen-background.tsx); KaraIdenfyBackground is that
+	// gradient rendered to an image.
 	// A real image view, not a UIColor(patternImage:): the SDK deep-copies any
 	// injected view through NSKeyedArchiver, and a pattern colour is not
 	// encodable, so it aborted the process the moment a custom view was wired in
@@ -148,6 +151,7 @@ final class KaraIdenfyLayout: NSObject, UINavigationControllerDelegate {
 				constraint.constant = Self.buttonHeight
 			}
 			button.layer.cornerRadius = Self.buttonHeight / 2
+			applyBrandGradient(to: button)
 		}
 
 		// Body copy is capped at a line count and ends in an ellipsis even when the
@@ -171,8 +175,8 @@ final class KaraIdenfyLayout: NSObject, UINavigationControllerDelegate {
 			roundLikeField(in: selection.digitalIdTableView)
 		}
 
-		// The camera toolbar icons ship grey. The upload one goes gold, since it is
-		// an action we want people to find; the lens toggle just goes white.
+		// The camera toolbar icons ship grey. Both go cream: the shutter is the
+		// screen's one gold element, so the upload shortcut next to it is not.
 		if let camera = view as? DocumentCameraViewV2 {
 			// The camera repeats, in a fixed-height scroll box that crops them
 			// mid-sentence, the instructions the previous screen just showed in full.
@@ -183,8 +187,8 @@ final class KaraIdenfyLayout: NSObject, UINavigationControllerDelegate {
 
 			let buttons = camera.cameraSessionsButtons
 			for (icon, tint) in [
-				(buttons.idenfyUploadPhotoButton, KaraIdenfyTheme.gold),
-				(buttons.idenfySwitchLensButton, UIColor.white),
+				(buttons.idenfyUploadPhotoButton, KaraIdenfyTheme.text),
+				(buttons.idenfySwitchLensButton, KaraIdenfyTheme.text),
 			] {
 				icon.imageView?.image = icon.image(for: .normal)?
 					.withRenderingMode(.alwaysTemplate)
@@ -223,12 +227,12 @@ final class KaraIdenfyLayout: NSObject, UINavigationControllerDelegate {
 		let title = Self.title
 		guard !title.isEmpty, title != "kara_toolbar_title" else { return }
 
-		// Matches the app's Header: `font-semibold text-kara-white text-xl`.
+		// Matches the app's Header: `font-semibold text-xl`, in the Écrin ink.
 		let label = UILabel()
 		label.tag = Self.titleTag
 		label.text = title
 		label.font = UIFont(name: ConstsIdenfyFonts.idenfyFontSemiBoldV2, size: 20)
-		label.textColor = .white
+		label.textColor = KaraIdenfyTheme.text
 		label.textAlignment = .center
 		label.numberOfLines = 1
 		// The back and language buttons sit either side; shrink rather than clip
@@ -246,6 +250,26 @@ final class KaraIdenfyLayout: NSObject, UINavigationControllerDelegate {
 		])
 	}
 
+
+	// iDenfy fills its primary buttons with a two-stop gradient layer, and its
+	// settings take exactly two colours. The Écrin gold has a third, lighter stop
+	// in the middle, put back here on the layer itself. Only a layer still
+	// carrying the SDK's two stops is touched, so this cannot recolour anything
+	// else, and a gradient the SDK rebuilds after this pass simply stays on the
+	// two-stop version of the same gold.
+	private func applyBrandGradient(to button: UIButton) {
+		let ends = [KaraIdenfyTheme.brandGradient[0], KaraIdenfyTheme.brandGradient[2]]
+			.map(\.cgColor)
+		for case let gradient as CAGradientLayer in button.layer.sublayers ?? [] {
+			guard let colors = gradient.colors as? [CGColor], colors == ends else { continue }
+			gradient.colors = KaraIdenfyTheme.brandGradient.map(\.cgColor)
+			gradient.locations = KaraIdenfyTheme.brandGradientLocations
+			// ponytail: the note's 125 degrees, set by eye on a wide button (a CSS
+			// angle does not transpose to unit coordinates as is).
+			gradient.startPoint = CGPoint(x: 0, y: 0)
+			gradient.endPoint = CGPoint(x: 1, y: 1)
+		}
+	}
 
 	// The country field is a plain input the SDK sizes to its content. Give it the
 	// app's control height so it reads as a field rather than a caption, and a

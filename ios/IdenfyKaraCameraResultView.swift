@@ -9,8 +9,8 @@ import idenfyviews
 //  border equal to the fill is what made the label vanish through seven
 //  attempts: grey on grey, then white on white.
 //
-//  So the two are split: the theme keeps a white border colour, which is what
-//  makes the label white, and the border WIDTH is zeroed here so nothing is
+//  So the two are split: the theme keeps a cream border colour, which is what
+//  makes the label cream, and the border WIDTH is zeroed here so nothing is
 //  actually drawn. The result is the app's plain grey `secondary` button.
 //
 //  No initialiser is declared on purpose. Adding one makes Swift demand
@@ -29,17 +29,17 @@ final class KaraIdenfyCameraResultView: CameraResultViewV2 {
 		// the earlier attempts recoloured a title that was invisible for another
 		// reason, which is why they all looked like no-ops.
 		if let title = button.attributedTitle(for: .normal), title.length > 0 {
-			let white = NSMutableAttributedString(attributedString: title)
-			white.addAttribute(
+			let cream = NSMutableAttributedString(attributedString: title)
+			cream.addAttribute(
 				.foregroundColor,
-				value: UIColor.white,
-				range: NSRange(location: 0, length: white.length)
+				value: KaraIdenfyTheme.text,
+				range: NSRange(location: 0, length: cream.length)
 			)
-			button.setAttributedTitle(white, for: .normal)
-			button.setAttributedTitle(white, for: .highlighted)
+			button.setAttributedTitle(cream, for: .normal)
+			button.setAttributedTitle(cream, for: .highlighted)
 		}
-		button.setTitleColor(.white, for: .normal)
-		button.setTitleColor(.white, for: .highlighted)
-		button.titleLabel?.textColor = .white
+		button.setTitleColor(KaraIdenfyTheme.text, for: .normal)
+		button.setTitleColor(KaraIdenfyTheme.text, for: .highlighted)
+		button.titleLabel?.textColor = KaraIdenfyTheme.text
 	}
 }

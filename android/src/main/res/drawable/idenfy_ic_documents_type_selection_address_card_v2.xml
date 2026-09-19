@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Kara: the document art, in the Écrin neutrals. iDenfy ships each document type
+     in its own colour (indigo, purple, orange, pink, green); the geometry below is
+     theirs, from sdk-api 9.1.0, recoloured by role exactly as the iOS art in
+     apps/native/assets/idenfy: card fill surface-solid #1E1822, outline and accent
+     lines ink-3 #85796C, marks ink-2 #B9AE9F. Neutral because a verification flow
+     has no value to mark: the only gold on these screens is the continue button. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="80dp"
+    android:height="80dp"
+    android:viewportWidth="80"
+    android:viewportHeight="80">
+  <path
+      android:pathData="M0,18C0,13.582 3.582,10 8,10H72C76.418,10 80,13.582 80,18V62C80,66.418 76.418,70 72,70H8C3.582,70 0,66.418 0,62V18Z"
+      android:fillColor="#1E1822"/>
+  <path
+      android:pathData="M72,14H8C5.791,14 4,15.791 4,18V62C4,64.209 5.791,66 8,66H72C74.209,66 76,64.209 76,62V18C76,15.791 74.209,14 72,14ZM8,10C3.582,10 0,13.582 0,18V62C0,66.418 3.582,70 8,70H72C76.418,70 80,66.418 80,62V18C80,13.582 76.418,10 72,10H8Z"
+      android:fillColor="#85796C"
+      android:fillType="evenOdd"/>
+  <path
+      android:pathData="M0,18H80C80,13.582 76.418,10 72,10H8C3.582,10 0,13.582 0,18Z"
+      android:fillColor="#85796C"/>
+  <path
+      android:pathData="M42,32L50,32A2,2 0,0 1,52 34L52,34A2,2 0,0 1,50 36L42,36A2,2 0,0 1,40 34L40,34A2,2 0,0 1,42 32z"
+      android:fillColor="#85796C"/>
+  <path
+      android:pathData="M58,32L66,32A2,2 0,0 1,68 34L68,34A2,2 0,0 1,66 36L58,36A2,2 0,0 1,56 34L56,34A2,2 0,0 1,58 32z"
+      android:fillColor="#85796C"/>
+  <path
+      android:pathData="M42,48L66,48A2,2 0,0 1,68 50L68,50A2,2 0,0 1,66 52L42,52A2,2 0,0 1,40 50L40,50A2,2 0,0 1,42 48z"
+      android:fillColor="#B9AE9F"/>
+  <path
+      android:pathData="M42,40L66,40A2,2 0,0 1,68 42L68,42A2,2 0,0 1,66 44L42,44A2,2 0,0 1,40 42L40,42A2,2 0,0 1,42 40z"
+      android:fillColor="#B9AE9F"/>
+  <path
+      android:pathData="M21.004,37.224L13.868,43.104C13.87,43.116 13.87,43.128 13.868,43.14C13.866,43.153 13.866,43.167 13.868,43.18V49.134C13.868,49.346 13.951,49.548 14.101,49.698C14.251,49.847 14.453,49.931 14.665,49.931H19.418V45.166H22.589V49.931H27.355C27.566,49.928 27.767,49.843 27.915,49.694C28.064,49.545 28.149,49.345 28.153,49.134V43.182C28.159,43.157 28.159,43.131 28.153,43.106L21.004,37.224Z"
+      android:fillColor="#B9AE9F"/>
+  <path
+      android:pathData="M30.864,41.764L28.149,39.505V34.447C28.15,34.394 28.14,34.342 28.12,34.293C28.1,34.244 28.071,34.2 28.033,34.164C27.996,34.126 27.952,34.097 27.903,34.078C27.855,34.059 27.802,34.05 27.75,34.053H25.367C25.314,34.05 25.261,34.059 25.212,34.078C25.162,34.097 25.117,34.126 25.079,34.164C25.042,34.202 25.013,34.247 24.993,34.296C24.974,34.346 24.966,34.399 24.968,34.452V36.853L21.939,34.323C21.669,34.114 21.338,34 20.997,34C20.656,34 20.325,34.114 20.056,34.323L11.139,41.764C11.099,41.797 11.065,41.838 11.042,41.885C11.018,41.931 11.004,41.982 11.001,42.034C10.993,42.138 11.025,42.241 11.09,42.322L11.86,43.243C11.928,43.317 12.019,43.365 12.118,43.381C12.224,43.384 12.329,43.353 12.417,43.292L21.001,36.134L29.581,43.292C29.655,43.351 29.748,43.381 29.842,43.376H29.882C29.981,43.364 30.072,43.317 30.139,43.243L30.909,42.322C30.943,42.283 30.968,42.237 30.983,42.187C30.998,42.138 31.003,42.086 30.998,42.034C30.995,41.982 30.981,41.931 30.958,41.885C30.934,41.838 30.901,41.797 30.861,41.764H30.864Z"
+      android:fillColor="#B9AE9F"/>
+</vector>

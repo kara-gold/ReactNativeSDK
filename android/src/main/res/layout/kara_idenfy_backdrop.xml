@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  The app's assets/backgrounds/general-background.jpg, as the backdrop
-  KaraIdenfyLayout inserts at index 0 of every iDenfy screen root.
+  The Écrin canvas (#0F0C11 under its radial glow from the top, the same
+  gradient as apps/native/components/ui/screen-background.tsx, rendered to an
+  image), as the backdrop KaraIdenfyLayout inserts at index 0 of every iDenfy
+  screen root.
 
   Inflated with the target root as the inflation parent rather than built in
   Kotlin: the parent then generates the LayoutParams of its own type from the

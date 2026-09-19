@@ -4,8 +4,8 @@
      the palette swap is a white button with a gold outline: a second primary, next to
      the real one.
 
-     Repainted as the app's grey secondary: solid #262626, no outline, and the label
-     turned white in colors.xml. This is the surface iOS could only reach by walking
+     Repainted as the Écrin secondary: tone-neutral (cream at 8 %), no outline, and
+     the label turned cream in colors.xml. This is the surface iOS could only reach by walking
      the view tree at runtime (KaraIdenfyTheme.styleSecondaryButton); on Android it is
      one asset.
 
@@ -18,6 +18,6 @@
     android:viewportWidth="300"
     android:viewportHeight="42">
     <path
-        android:fillColor="#262626"
+        android:fillColor="#14F5EFE6"
         android:pathData="M21,0L279,0A21,21 0,0 1,279 42L21,42A21,21 0,0 1,21 0z" />
 </vector>

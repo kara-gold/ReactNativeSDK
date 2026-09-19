@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Kara: the enabled primary button. Both gradient stops resolve to the app's white
-     fill through colors.xml, so the gradient is kept only because the SDK's shape is
-     declared that way, not because it renders as one.
+<!-- Kara: the enabled primary button, the one gold element of each screen. The
+     Écrin filled gold is a three-stop gradient: the two ends come from colors.xml
+     (the names the SDK already declares), the lighter band in the middle is set here
+     because the SDK has no name for it. Same stops, direction and centre as
+     KaraIdenfyLayout.applyBrandGradient on iOS: top-left to bottom-right, the light
+     band at 60 %.
 
      The radius is the one piece of geometry the SDK exposes as a resource: iDenfy's
      29 dimens hold no corner radii, and the rest of its rounding is hardcoded in
@@ -11,7 +14,9 @@
     android:shape="rectangle">
 
     <gradient
-        android:angle="0"
+        android:angle="315"
+        android:centerColor="#EFD9A8"
+        android:centerX="0.6"
         android:endColor="@color/idenfyGradientButtonColorEnd"
         android:startColor="@color/idenfyGradientButtonColorStart"
         android:type="linear" />
