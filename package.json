@@ -53,12 +53,6 @@
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
-  "dependencies": {
-    "@react-native/new-app-screen": "0.81.5",
-    "react": "19.1.0",
-    "react-native": "0.81.5",
-    "react-native-safe-area-context": "^5.5.2"
-  },
   "devDependencies": {
     "@arkweid/lefthook": "^0.7.7",
     "@babel/core": "^7.25.2",
